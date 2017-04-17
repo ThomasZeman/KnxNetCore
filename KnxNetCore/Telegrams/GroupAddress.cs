@@ -42,7 +42,7 @@ namespace KnxNetCore.Telegrams
             {
                 throw new ArgumentOutOfRangeException($"MiddleGroup cannot be greater than {MiddleGroupMax} but was {middleGroup}");
             }
-            AsUShort = (ushort)(subGroup + (middleGroup << MiddleGroupBitShift) + (mainGroup << MainGroupBitShift));
+            AsUShort = (ushort)(subGroup | (middleGroup << MiddleGroupBitShift) | (mainGroup << MainGroupBitShift));
         }
 
         public ushort AsUShort { get; }

@@ -45,7 +45,7 @@ namespace KnxNetCore.Telegrams
             {
                 throw new ArgumentOutOfRangeException($"Line cannot be greater than {LineMax} but was {line}");
             }
-            AsUShort = (ushort)(device + (line << LineBitShift) + (area << AreaBitShift));
+            AsUShort = (ushort)(device | (line << LineBitShift) | (area << AreaBitShift));
         }
 
         public byte[] As3Level => new[]
