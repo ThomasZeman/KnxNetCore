@@ -17,12 +17,22 @@ namespace KnxNetCore.Telegrams
         private static readonly int MiddleGroupBitShift = 8;
         private static readonly int MainGroupBitShift = 11;
 
-        public GroupAddress(ushort groupAddressAsUShort)
+        public static GroupAddress FromUShort(ushort groupAddressAsUShort)
+        {
+            return new GroupAddress(groupAddressAsUShort);
+        }
+
+        public static GroupAddress FromGroups(byte mainGroup, byte middleGroup, byte subGroup)
+        {
+            return new GroupAddress(mainGroup, middleGroup, subGroup);
+        }
+
+        private GroupAddress(ushort groupAddressAsUShort)
         {
             AsUShort = groupAddressAsUShort;
         }
 
-        public GroupAddress(byte mainGroup, byte middleGroup, byte subGroup)
+        private GroupAddress(byte mainGroup, byte middleGroup, byte subGroup)
         {
             if (mainGroup > MainGroupMax)
             {
@@ -43,5 +53,27 @@ namespace KnxNetCore.Telegrams
             (byte) ((AsUShort >> MiddleGroupBitShift) & MiddleGroupMax),
             (byte) AsUShort
         };
+
+        public override string ToString()
+        {
+            return string.Join("/", As3Level);
+        }
+
+        private bool Equals(GroupAddress other)
+        {
+            return AsUShort == other.AsUShort;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is GroupAddress && Equals((GroupAddress)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return AsUShort.GetHashCode();
+        }
     }
 }
