@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using KnxNetCore;
+using KnxNetCore.Telegrams;
 
 namespace KnxRadio
 {
@@ -44,8 +45,8 @@ namespace KnxRadio
         {
             lock (RadioStations)
             {
-                // When any event with destination group 1024 is received switch to next radio station
-                if (arg2.DestinationAddress == 1024)
+                // When any event with destination group 0/4/0 is received switch to next radio station
+                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 4, 0)))
                 {
                     if (_lastProcess != null)
                     {

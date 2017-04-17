@@ -93,8 +93,8 @@ namespace KnxNetCore.Telegrams
             MessageCode = messageCode;
             Control1 = control1;
             Control2 = control2;
-            SourceAddress = sourceAddress;
-            DestinationAddress = destinationAddress;
+            SourceAddress = IndividualAddress.FromUShort( sourceAddress);
+            DestinationAddress = GroupAddress.FromUShort(destinationAddress);
             DataLength = dataLength;
             Apdu = apdu;
         }
@@ -105,8 +105,8 @@ namespace KnxNetCore.Telegrams
 
         public Control2Flags Control2 { get; }
 
-        public ushort SourceAddress { get; }
-        public ushort DestinationAddress { get; }
+        public IndividualAddress SourceAddress { get; }
+        public GroupAddress DestinationAddress { get; }
         public byte DataLength { get; }
         public ushort Apdu { get; }
 

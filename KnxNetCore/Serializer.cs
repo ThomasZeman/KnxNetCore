@@ -93,8 +93,9 @@ namespace KnxNetCore
             memoryStream.WriteByte((byte) cemiFrame.Control2);
             memoryStream.WriteByte(0); // Source Address will be filled out by gateway
             memoryStream.WriteByte(0);
-            memoryStream.WriteByte((byte) (cemiFrame.DestinationAddress >> 8));
-            memoryStream.WriteByte((byte) (cemiFrame.DestinationAddress & 255));
+            var destinationAddressAsUShort = cemiFrame.DestinationAddress.AsUShort;            
+            memoryStream.WriteByte((byte) (destinationAddressAsUShort >> 8));
+            memoryStream.WriteByte((byte) (destinationAddressAsUShort & 255));
             memoryStream.WriteByte(cemiFrame.DataLength);
             memoryStream.WriteByte(0);
             memoryStream.WriteByte(0x81);
