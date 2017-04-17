@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KnxNetCore.Telegrams
 {
@@ -9,10 +6,16 @@ namespace KnxNetCore.Telegrams
     /// Represents a 3-level group address
     /// </summary>
     /// <remarks>2-level addresses or free address structure are not supported</remarks>
-    public class GroupAddress
+    public sealed class GroupAddress
     {
-        public static readonly byte MainGroupMax = 31;
-        public static readonly byte MiddleGroupMax = 7;
+        private static readonly int MainGroupBitWidth = 5;
+        private static readonly int MiddleGroupBithWidth = 3;
+
+        private static readonly int MainGroupMax = (1 << MainGroupBitWidth) - 1;
+        private static readonly int MiddleGroupMax = (1 << MiddleGroupBithWidth) - 1;
+
+        private static readonly int MiddleGroupBitShift = 8;
+        private static readonly int MainGroupBitShift = 11;
 
         public GroupAddress(ushort groupAddressAsUShort)
         {
@@ -29,15 +32,15 @@ namespace KnxNetCore.Telegrams
             {
                 throw new ArgumentOutOfRangeException($"MiddleGroup cannot be greater than {MiddleGroupMax} but was {middleGroup}");
             }
-            AsUShort = (ushort)(subGroup + (middleGroup << 8) + (mainGroup << 11));
+            AsUShort = (ushort)(subGroup + (middleGroup << MiddleGroupBitShift) + (mainGroup << MainGroupBitShift));
         }
 
         public ushort AsUShort { get; }
 
-        public byte[] As3Level => new byte[]
+        public byte[] As3Level => new[]
         {
-            (byte) (AsUShort >> 11),
-            (byte) ((AsUShort >> 8) & 7),
+            (byte) (AsUShort >> MainGroupBitShift),
+            (byte) ((AsUShort >> MiddleGroupBitShift) & MiddleGroupMax),
             (byte) AsUShort
         };
     }

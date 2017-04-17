@@ -2,13 +2,16 @@
 
 namespace KnxNetCore.Telegrams
 {
+    /// <summary>
+    /// Represents a 3-level indiviual address
+    /// </summary>
     public sealed class IndividualAddress
     {
-        public static readonly int AreaBitWidth = 4;
-        public static readonly int LineBitWidth = 4;
+        private static readonly int AreaBitWidth = 4;
+        private static readonly int LineBitWidth = 4;
 
-        public static readonly int AreaMax = (1 << AreaBitWidth) - 1;
-        public static readonly int LineMax = (1 << LineBitWidth) - 1;
+        private static readonly int AreaMax = (1 << AreaBitWidth) - 1;
+        private static readonly int LineMax = (1 << LineBitWidth) - 1;
 
         private static readonly int AreaBitShift = 12;
         private static readonly int LineBitShift = 8;
