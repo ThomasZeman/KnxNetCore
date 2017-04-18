@@ -38,6 +38,10 @@ namespace KnxNetCore.Datapoints
             }
             int exponent = 0;
             var scaled = Math.Round(input * 100d);
+            if (double.IsPositiveInfinity(scaled) || double.IsNegativeInfinity(scaled))
+            {
+                throw new ArgumentOutOfRangeException($"{input} is out of range");
+            }
             while (scaled > 2047)
             {
                 exponent++;

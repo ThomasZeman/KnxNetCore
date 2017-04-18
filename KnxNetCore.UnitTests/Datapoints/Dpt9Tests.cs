@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using KnxNetCore.Datapoints;
 using Xunit;
+using Xunit.Runners;
 
 namespace KnxNetCore.UnitTests.Datapoints
 {
@@ -42,5 +44,34 @@ namespace KnxNetCore.UnitTests.Datapoints
             Dpt9.DoubleToBytes(expected, outBytes, 3);
             Assert.Equal(input, outBytes.Skip(3).ToArray());
         }
+
+        [Fact]
+        public void Throws_when_not_enough_space_in_array()
+        {
+            byte[] outBytes = new byte[4];
+            Assert.Throws<ArgumentException>(() => Dpt9.DoubleToBytes(0d, outBytes, 3));
+        }
+
+        [Fact]
+        public void Throws_when_not_enough_space_in_array2()
+        {
+            byte[] outBytes = new byte[1];
+            Assert.Throws<ArgumentException>(() => Dpt9.DoubleToBytes(0d, outBytes, 0));
+        }
+
+        [Fact]
+        public void Throws_when_input_float_is_too_big()
+        {
+            byte[] outBytes = new byte[10];
+            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9.DoubleToBytes(double.MaxValue, outBytes, 0));
+        }
+
+        [Fact]
+        public void Throws_when_input_float_is_too_big2()
+        {
+            byte[] outBytes = new byte[10];
+            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9.DoubleToBytes(1000000000d, outBytes, 0));
+        }
+
     }
 }
