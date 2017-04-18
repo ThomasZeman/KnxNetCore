@@ -3,7 +3,7 @@
 namespace KnxNetCore.Telegrams
 {
     /// <summary>
-    /// Represents a 3-level indiviual address
+    /// Represents a 3-level individual address
     /// </summary>
     public sealed class IndividualAddress
     {
