@@ -26,4 +26,10 @@
     <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Amplifier">
+      <HintPath>..\bin\KnxNetCore\bin\Debug\netcoreapp1.0\Amplifier.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

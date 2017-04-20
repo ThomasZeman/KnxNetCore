@@ -15,4 +15,10 @@
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Amplifier">
+      <HintPath>..\bin\KnxNetCore\bin\Debug\netcoreapp1.0\Amplifier.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

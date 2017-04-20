@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using KnxNetCore.Datapoints;
 using Xunit;
-using Xunit.Runners;
 
 namespace KnxNetCore.UnitTests.Datapoints
 {
