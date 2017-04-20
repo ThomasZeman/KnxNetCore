@@ -45,6 +45,10 @@ namespace KnxRadio
         {
             lock (RadioStations)
             {
+                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)))
+                {
+                    
+                }
                 // When any event with destination group 0/4/0 is received switch to next radio station
                 if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 4, 0)))
                 {

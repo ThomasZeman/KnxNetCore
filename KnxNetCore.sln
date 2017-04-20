@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "KnxNetCore", "KnxNetCore\KnxNetCore.xproj", "{E41E6377-3A18-4123-BA98-4718746BECB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnxNetCore", "KnxNetCore\KnxNetCore.csproj", "{E41E6377-3A18-4123-BA98-4718746BECB2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "KnxRadio", "KnxRadio\KnxRadio.xproj", "{58DC962E-1AED-4A9D-A9B0-7802AF568353}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnxRadio", "KnxRadio\KnxRadio.csproj", "{58DC962E-1AED-4A9D-A9B0-7802AF568353}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "KnxNetCore.UnitTests", "KnxNetCore.UnitTests\KnxNetCore.UnitTests.xproj", "{C22663CC-48D2-4E3D-9CCF-EAB097F87F88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KnxNetCore.UnitTests", "KnxNetCore.UnitTests\KnxNetCore.UnitTests.csproj", "{C22663CC-48D2-4E3D-9CCF-EAB097F87F88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

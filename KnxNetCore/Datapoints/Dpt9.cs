@@ -7,6 +7,16 @@ namespace KnxNetCore.Datapoints
         // based on: http://www.knx.org/fileadmin/template/documents/downloads_support_menu/KNX_tutor_seminar_page/Advanced_documentation/05_Interworking_E1209.pdf
         // chapter 4.10
 
+        public static double BytesToDouble9001(byte[] input)
+        {
+            var result = BytesToDouble(input);
+            if (result < -273 || result > 670760)
+            {
+                
+            }
+            return 0;
+        }
+
         public static double BytesToDouble(byte[] input)
         {
             var mantissa = (input[1] | (input[0] & 7) << 8);
