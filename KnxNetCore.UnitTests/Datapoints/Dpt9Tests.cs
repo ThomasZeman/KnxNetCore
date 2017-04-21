@@ -32,7 +32,9 @@ namespace KnxNetCore.UnitTests.Datapoints
         [Theory, MemberData(nameof(TestData))]
         public void BytesToDouble(byte[] input, double expected)
         {
-            var result = Dpt9.BytesToDouble(input);
+            var final = new byte[10];
+            Array.Copy(input, 0, final, 3, input.Length);
+            var result = Dpt9.BytesToDouble(new ArraySegment<byte>(final, 3, 2));
             Assert.Equal(expected, result, 3);
         }
 
@@ -72,5 +74,16 @@ namespace KnxNetCore.UnitTests.Datapoints
             Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9.DoubleToBytes(1000000000d, outBytes, 0));
         }
 
+        [Fact]
+        public void Not_enough_data_throws()
+        {
+            Assert.Throws<ArgumentException>(() => Dpt9.BytesToDouble(new ArraySegment<byte>(new byte[] { 0x7f, 0xff }, 1, 1)));
+        }
+
+        [Fact]
+        public void Too_much_data_throws()
+        {
+            Assert.Throws<ArgumentException>(() => Dpt9.BytesToDouble(new ArraySegment<byte>(new byte[] { 0x7f, 0xff, 0x44, 0x33 }, 1, 3)));
+        }
     }
 }

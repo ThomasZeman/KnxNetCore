@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using KnxNetCore;
+using KnxNetCore.Datapoints;
 using KnxNetCore.Telegrams;
 
 namespace KnxRadio
@@ -41,13 +42,14 @@ namespace KnxRadio
             connection.Dispose();
         }
 
-        private static void Connection_KnxEventReceived(KnxConnection arg1, KnxEvent arg2)
+        private static void Connection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
             lock (RadioStations)
             {
-                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)))
+                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)) || Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 21)))
                 {
-                    
+                    var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(arg2.Data.Array, arg2.Data.Offset + 1, arg2.Data.Count - 1));
+                    Console.WriteLine(result.Value + "C");
                 }
                 // When any event with destination group 0/4/0 is received switch to next radio station
                 if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 4, 0)))

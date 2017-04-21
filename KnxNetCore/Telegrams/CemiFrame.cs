@@ -86,17 +86,20 @@ namespace KnxNetCore.Telegrams
         {
             GroupAddress = 0x80
         }
+        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, ushort sourceAddress, ushort destinationAddress, byte dataLength, ushort apdu)
+            : this(messageCode, control1, control2, sourceAddress, destinationAddress, dataLength, apdu, new ArraySegment<byte>())
+        { }
 
-        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, ushort sourceAddress,
-            ushort destinationAddress, byte dataLength, ushort apdu)
+        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, ushort sourceAddress, ushort destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
         {
             MessageCode = messageCode;
             Control1 = control1;
             Control2 = control2;
-            SourceAddress = IndividualAddress.FromUShort( sourceAddress);
+            SourceAddress = IndividualAddress.FromUShort(sourceAddress);
             DestinationAddress = GroupAddress.FromUShort(destinationAddress);
             DataLength = dataLength;
             Apdu = apdu;
+            Data = data;
         }
 
         public byte MessageCode { get; }
@@ -109,6 +112,7 @@ namespace KnxNetCore.Telegrams
         public GroupAddress DestinationAddress { get; }
         public byte DataLength { get; }
         public ushort Apdu { get; }
+        public ArraySegment<byte> Data { get; }
 
         public override string ToString()
         {

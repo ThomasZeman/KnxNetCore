@@ -7,12 +7,17 @@ namespace KnxNetCore.Datapoints
         // based on: http://www.knx.org/fileadmin/template/documents/downloads_support_menu/KNX_tutor_seminar_page/Advanced_documentation/05_Interworking_E1209.pdf
         // chapter 4.10
 
-        public static double BytesToDouble(byte[] input)
+        public static double BytesToDouble(ArraySegment<byte> arraySegment)
         {
-            var mantissa = (input[1] | (input[0] & 7) << 8);
-            var exponent = (input[0] >> 3) & 15;
+            if (arraySegment.Count != 2)
+            {
+                throw new ArgumentException($"Must have exactly 2 bytes for decoding a floating point number but had {arraySegment.Count}");
+            }
+            var array = arraySegment.Array;
+            var mantissa = (array[arraySegment.Offset + 1] | (array[arraySegment.Offset] & 7) << 8);
+            var exponent = (array[arraySegment.Offset] >> 3) & 15;
             var calculatedExponent = Math.Pow(2, exponent);
-            if ((input[0] & 128) != 128)
+            if ((array[arraySegment.Offset] & 128) != 128)
             {
                 // positive value
                 return Math.Round(0.01d * mantissa * calculatedExponent, 2);

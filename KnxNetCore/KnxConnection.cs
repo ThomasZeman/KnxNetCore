@@ -23,7 +23,7 @@ namespace KnxNetCore
         public IPEndPoint LocalEndpoint { get; }
         public IPEndPoint RemoteEndpoint { get; }
 
-        public event Action<KnxConnection, KnxEvent> KnxEventReceived;
+        public event Action<KnxConnection, CemiFrame> KnxEventReceived;
 
         private readonly UdpClient _socket;
         private readonly ITrace _trace;
@@ -95,9 +95,7 @@ namespace KnxNetCore
             try
             {
                 await SendTunnelingAcknowledge(knxTunnelingRequest.SequenceNumber);
-                OnKnxEventReceived(this,
-                    new KnxEvent(knxTunnelingRequest.CemiFrame.DestinationAddress,
-                        knxTunnelingRequest.CemiFrame.Apdu == 0x80));
+                OnKnxEventReceived(this,knxTunnelingRequest.CemiFrame);
             }
             catch (Exception e)
             {
@@ -211,7 +209,7 @@ namespace KnxNetCore
             await _socket.SendAsync(buf, buf.Length, RemoteEndpoint);
         }
 
-        private void OnKnxEventReceived(KnxConnection arg1, KnxEvent arg2)
+        private void OnKnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
             KnxEventReceived?.Invoke(arg1, arg2);
         }

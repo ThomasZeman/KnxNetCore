@@ -5,7 +5,7 @@ namespace KnxNetCore.Datapoints
 {
     public static class Dpt9001
     {
-        public static Measure<Celsius> BytesToCelsius(byte[] input)
+        public static Measure<Celsius> BytesToCelsius(ArraySegment<byte> input)
         {
             var result = Dpt9.BytesToDouble(input);
             if (result < -273 || result > 670760)

@@ -30,7 +30,9 @@ namespace KnxNetCore.UnitTests.Datapoints
         [Theory, MemberData(nameof(TestData))]
         public void BytesToCelsius(byte[] input, Measure<Celsius> expected)
         {
-            var result = Dpt9001.BytesToCelsius(input);
+            var final = new byte[10];
+            Array.Copy(input, 0, final, 3, input.Length);
+            var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(final, 3, 2));
             Assert.Equal(expected, result);
         }
 
@@ -45,13 +47,13 @@ namespace KnxNetCore.UnitTests.Datapoints
         [Fact]
         public void Degree_celsius_below_273_throws()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9001.BytesToCelsius(new byte[] { 0xf8, 0x02 }));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9001.BytesToCelsius(new ArraySegment<byte>(new byte[] { 0xf8, 0x02 }, 0, 2)));
         }
 
         [Fact]
         public void Degree_celsius_above_670760_throws()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9001.BytesToCelsius(new byte[] { 0x7f, 0xff }));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Dpt9001.BytesToCelsius(new ArraySegment<byte>(new byte[] { 0x7f, 0xff }, 0, 2)));
         }
     }
 }

@@ -8,7 +8,7 @@ namespace KnxNetCore
 {
     internal class Serializer
     {
-        private static readonly Dictionary<ushort, Func<KnxTelegramHeader, byte[], KnxTelegramPayload>> PayloadFactories = 
+        private static readonly Dictionary<ushort, Func<KnxTelegramHeader, byte[], KnxTelegramPayload>> PayloadFactories =
             new Dictionary<ushort, Func<KnxTelegramHeader, byte[], KnxTelegramPayload>>
             {
                 {0x206, ParseConnectResponse},
@@ -22,10 +22,10 @@ namespace KnxNetCore
         {
             stream.WriteByte(knxTelegramHeader.HeaderLength);
             stream.WriteByte(knxTelegramHeader.ProtocolVersion);
-            stream.WriteByte((byte) (knxTelegramHeader.ServiceType >> 8));
-            stream.WriteByte((byte) (knxTelegramHeader.ServiceType & 255));
-            stream.WriteByte((byte) (knxTelegramHeader.TotalLength >> 8));
-            stream.WriteByte((byte) (knxTelegramHeader.TotalLength & 255));
+            stream.WriteByte((byte)(knxTelegramHeader.ServiceType >> 8));
+            stream.WriteByte((byte)(knxTelegramHeader.ServiceType & 255));
+            stream.WriteByte((byte)(knxTelegramHeader.TotalLength >> 8));
+            stream.WriteByte((byte)(knxTelegramHeader.TotalLength & 255));
         }
 
         public static void Serialize(KnxConnectRequest knxConnectRequest, MemoryStream stream)
@@ -39,7 +39,7 @@ namespace KnxNetCore
             stream.WriteByte(2);
             stream.WriteByte(0);
             stream.Seek(0, SeekOrigin.Begin);
-            var header = new KnxTelegramHeader(6, 0x10, 0x205, (ushort) stream.Length);
+            var header = new KnxTelegramHeader(6, 0x10, 0x205, (ushort)stream.Length);
             Serialize(header, stream);
         }
 
@@ -51,7 +51,7 @@ namespace KnxNetCore
             stream.WriteByte(0);
             Serialize(knxConnectionStateRequest.EndPoint, stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var header = new KnxTelegramHeader(6, 0x10, 0x207, (ushort) stream.Length);
+            var header = new KnxTelegramHeader(6, 0x10, 0x207, (ushort)stream.Length);
             Serialize(header, stream);
         }
 
@@ -62,7 +62,7 @@ namespace KnxNetCore
             SerializeCommonConnectionHeader(knxTunnelingRequest.ChannelId, knxTunnelingRequest.SequenceNumber, memoryStream);
             Serialize(knxTunnelingRequest.CemiFrame, memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var header = new KnxTelegramHeader(6, 0x10, 0x420, (ushort) memoryStream.Length);
+            var header = new KnxTelegramHeader(6, 0x10, 0x420, (ushort)memoryStream.Length);
             Serialize(header, memoryStream);
         }
 
@@ -81,7 +81,7 @@ namespace KnxNetCore
             memoryStream.Seek(6, SeekOrigin.Begin);
             SerializeCommonConnectionHeader(knxTunnelingAcknowledge.ChannelId, knxTunnelingAcknowledge.SequenceNumber, memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var header = new KnxTelegramHeader(6, 0x10, 0x421, (ushort) memoryStream.Length);
+            var header = new KnxTelegramHeader(6, 0x10, 0x421, (ushort)memoryStream.Length);
             Serialize(header, memoryStream);
         }
 
@@ -89,13 +89,13 @@ namespace KnxNetCore
         {
             memoryStream.WriteByte(cemiFrame.MessageCode);
             memoryStream.WriteByte(0); // No additional data
-            memoryStream.WriteByte((byte) cemiFrame.Control1);
-            memoryStream.WriteByte((byte) cemiFrame.Control2);
+            memoryStream.WriteByte((byte)cemiFrame.Control1);
+            memoryStream.WriteByte((byte)cemiFrame.Control2);
             memoryStream.WriteByte(0); // Source Address will be filled out by gateway
             memoryStream.WriteByte(0);
-            var destinationAddressAsUShort = cemiFrame.DestinationAddress.AsUShort;            
-            memoryStream.WriteByte((byte) (destinationAddressAsUShort >> 8));
-            memoryStream.WriteByte((byte) (destinationAddressAsUShort & 255));
+            var destinationAddressAsUShort = cemiFrame.DestinationAddress.AsUShort;
+            memoryStream.WriteByte((byte)(destinationAddressAsUShort >> 8));
+            memoryStream.WriteByte((byte)(destinationAddressAsUShort & 255));
             memoryStream.WriteByte(cemiFrame.DataLength);
             memoryStream.WriteByte(0);
             memoryStream.WriteByte(0x81);
@@ -111,13 +111,13 @@ namespace KnxNetCore
             stream.WriteByte(8); // Length
             stream.WriteByte(1); // Protocol Type
             stream.Write(ipEndPoint.Address.GetAddressBytes(), 0, 4);
-            stream.WriteByte((byte) (ipEndPoint.Port >> 8));
-            stream.WriteByte((byte) ipEndPoint.Port);
+            stream.WriteByte((byte)(ipEndPoint.Port >> 8));
+            stream.WriteByte((byte)ipEndPoint.Port);
         }
 
         private static ushort ToUInt16(byte[] buffer, int startIndex)
         {
-            return (ushort) ((buffer[startIndex] << 8) + buffer[startIndex + 1]);
+            return (ushort)((buffer[startIndex] << 8) + buffer[startIndex + 1]);
         }
 
         internal static KnxTelegramHeader ParseKnxTelegramHeader(byte[] buffer)
@@ -160,12 +160,12 @@ namespace KnxNetCore
         {
             var cemiFrame = new CemiFrame(
                 arg2[10],
-                (CemiFrame.Control1Flags) arg2[12],
-                (CemiFrame.Control2Flags) arg2[13],
-                (ushort) ((arg2[14] << 8) + arg2[15]),
-                (ushort) ((arg2[16] << 8) + arg2[17]),
+                (CemiFrame.Control1Flags)arg2[12],
+                (CemiFrame.Control2Flags)arg2[13],
+                (ushort)((arg2[14] << 8) + arg2[15]),
+                (ushort)((arg2[16] << 8) + arg2[17]),
                 arg2[18],
-                (ushort) ((arg2[19] << 8) + arg2[20]));
+                (ushort)((arg2[19] << 8) + arg2[20]), new ArraySegment<byte>(arg2, 20, arg2[18] & 15));
             return new KnxTunnelingRequest(arg2[7], arg2[8], cemiFrame);
         }
 
@@ -184,7 +184,7 @@ namespace KnxNetCore
             {
                 throw new ArgumentException(string.Format("Supplied buffer smaller than required size ({0})", arg2.Length));
             }
-            return new KnxConnectionStateResponse(arg2[6], (KnxConnectionStateResponse.StatusCodes) arg2[7]);
+            return new KnxConnectionStateResponse(arg2[6], (KnxConnectionStateResponse.StatusCodes)arg2[7]);
         }
 
         private static KnxTelegramPayload ParseConnectResponse(KnxTelegramHeader arg1, byte[] arg2)
@@ -193,7 +193,7 @@ namespace KnxNetCore
             {
                 throw new ArgumentException(string.Format("Supplied buffer smaller than required size ({0})", arg2.Length));
             }
-            return new KnxConnectResponse(arg2[6], (KnxConnectResponse.StatusCodes) arg2[7]);
+            return new KnxConnectResponse(arg2[6], (KnxConnectResponse.StatusCodes)arg2[7]);
         }
     }
 }
