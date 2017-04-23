@@ -82,6 +82,26 @@ namespace KnxNetCore.Telegrams
             StandardFrame = 0x80
         }
 
+        public enum Commands
+        {
+            ValueRead = 0,
+            ValueResponse = 1,
+            ValueWrite = 2,
+            Unknown3 = 3,
+            Unknown4 = 4,
+            Unknown5 = 5,
+            Unknown6 = 6,
+            Unknown7 = 7,
+            Unknown8 = 8,
+            Unknown9 = 9,
+            MemoryWrite = 10,
+            Unknown11 = 11,
+            Unknown12 = 12,
+            Unknown13 = 13,
+            Unknown14 = 14,
+            Unknown15 = 15,
+        }
+
         public enum Control2Flags : byte
         {
             GroupAddress = 0x80
@@ -107,6 +127,8 @@ namespace KnxNetCore.Telegrams
         public Control1Flags Control1 { get; }
 
         public Control2Flags Control2 { get; }
+
+        public Commands Command => (Commands) ((Apdu >> 6) & 15);
 
         public IndividualAddress SourceAddress { get; }
         public GroupAddress DestinationAddress { get; }

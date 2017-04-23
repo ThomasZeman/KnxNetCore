@@ -42,25 +42,7 @@ namespace KnxRadio
             connection.Dispose();
         }
 
-        public enum Commands 
-        {
-            ValueRead = 0,
-            ValueResponse = 1,
-            ValueWrite = 2,
-            Unknown3 = 3,
-            Unknown4 = 4,
-            Unknown5 = 5,
-            Unknown6 = 6,
-            Unknown7 = 7,
-            Unknown8 = 8,
-            Unknown9 = 9,
-            MemoryWrite = 10,
-            Unknown11 = 11,
-            Unknown12 = 12,
-            Unknown13 = 13,
-            Unknown14 = 14,
-            Unknown15 = 15,
-        }
+
 
         private static void Connection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
@@ -68,8 +50,7 @@ namespace KnxRadio
             {
                 if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)) || Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 21)))
                 {
-                    var command = (Commands)((arg2.Apdu >> 6) & 15);
-                    Console.WriteLine(command);
+                    Console.WriteLine(arg2.Command);
                     var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(arg2.Data.Array, arg2.Data.Offset + 1, arg2.Data.Count - 1));
                     Console.WriteLine(result.Value + "C");
                 }
