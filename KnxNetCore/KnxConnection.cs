@@ -180,16 +180,15 @@ namespace KnxNetCore
             await Send(ms, _socket);
         }
 
-        internal async Task SendTunnelingRequest()
+        public async Task<byte> SendTunnelingRequest(CemiFrame cemiFrame)
         {
-            var cemiFrame = new CemiFrame(0x11,
-                CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
-                CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, 0, 6, 1, 0);
-            var telegram = new KnxTunnelingRequest(ChannelId, _sequenceCounter++, cemiFrame);
+            var sequenceNumber = _sequenceCounter++;
+            var telegram = new KnxTunnelingRequest(ChannelId, sequenceNumber, cemiFrame);
             var ms = new MemoryStream();
             Serializer.Serialize(telegram, ms);
             _trace.Write(TraceSeverities.Debug, "Sending SendTunnelingRequest: {0}", telegram.ToString());
             await Send(ms, _socket);
+            return sequenceNumber;
         }
 
         internal async Task SendTunnelingAcknowledge(byte sequenceCounter)

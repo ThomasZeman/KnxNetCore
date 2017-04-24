@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using KnxNetCore;
@@ -36,8 +37,39 @@ namespace KnxRadio
         {
             // Establish tunneling connection with gateway at 10.0.0.135
             _trace = new ConsoleTrace();
-            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 3671), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
+            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
             connection.KnxEventReceived += Connection_KnxEventReceived;
+            for (;;)
+            {
+                if (Console.KeyAvailable)
+                {
+                    var ck = Console.ReadKey();
+                    CemiFrame cemiFrame = null;
+                    if (ck.Key == ConsoleKey.N)
+                    {
+                        cemiFrame = new CemiFrame(0x11,
+                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
+                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x81);
+                    }
+                    else if (ck.Key == ConsoleKey.F)
+                    {
+                        cemiFrame = new CemiFrame(0x11,
+                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
+                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x80);
+
+                    }
+                    else if (ck.Key == ConsoleKey.Escape)
+                    {
+                        break;
+                    }
+                    if (cemiFrame != null)
+                    {
+                        var task = connection.SendTunnelingRequest(cemiFrame);
+                        task.Wait();
+                        Console.WriteLine("Seq sent: "+ task.Result);
+                    }
+                }
+            }
             Console.ReadKey();
             connection.Dispose();
         }
@@ -48,10 +80,15 @@ namespace KnxRadio
         {
             lock (RadioStations)
             {
+                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 0, 6)))
+                {
+                    bool onOff = (arg2.Apdu & 1) == 1;
+                    Console.WriteLine(onOff);
+                }
                 if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)) || Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 21)))
                 {
                     Console.WriteLine(arg2.Command);
-                    var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(arg2.Data.Array, arg2.Data.Offset + 1, arg2.Data.Count - 1));
+                    var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(arg2.Data.Array, arg2.Data.Offset, arg2.Data.Count));
                     Console.WriteLine(result.Value + "C");
                 }
                 // When any event with destination group 0/4/0 is received switch to next radio station

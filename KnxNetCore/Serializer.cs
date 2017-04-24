@@ -8,6 +8,9 @@ namespace KnxNetCore
 {
     internal class Serializer
     {
+        // TODO: accept cEMI protocol only.
+        // TODO: Do not accept extended frames.
+
         private static readonly Dictionary<ushort, Func<KnxTelegramHeader, byte[], KnxTelegramPayload>> PayloadFactories =
             new Dictionary<ushort, Func<KnxTelegramHeader, byte[], KnxTelegramPayload>>
             {
@@ -97,8 +100,12 @@ namespace KnxNetCore
             memoryStream.WriteByte((byte)(destinationAddressAsUShort >> 8));
             memoryStream.WriteByte((byte)(destinationAddressAsUShort & 255));
             memoryStream.WriteByte(cemiFrame.DataLength);
-            memoryStream.WriteByte(0);
-            memoryStream.WriteByte(0x81);
+            memoryStream.WriteByte((byte)(cemiFrame.Apdu >> 8));
+            memoryStream.WriteByte((byte)cemiFrame.Apdu);
+            if (cemiFrame.Data.Count != 0)
+            {
+                memoryStream.Write(cemiFrame.Data.Array, cemiFrame.Data.Offset, cemiFrame.Data.Count);
+            }
         }
 
         public static void Serialize(IPEndPoint ipEndPoint, MemoryStream stream)
@@ -158,14 +165,15 @@ namespace KnxNetCore
 
         private static KnxTelegramPayload ParseTunnelingRequest(KnxTelegramHeader arg1, byte[] arg2)
         {
+            var dataLength = arg2[18] & 15;
             var cemiFrame = new CemiFrame(
                 arg2[10],
                 (CemiFrame.Control1Flags)arg2[12],
                 (CemiFrame.Control2Flags)arg2[13],
-                (ushort)((arg2[14] << 8) + arg2[15]),
-                (ushort)((arg2[16] << 8) + arg2[17]),
+                IndividualAddress.FromUShort((ushort)((arg2[14] << 8) + arg2[15])),
+                GroupAddress.FromUShort((ushort)((arg2[16] << 8) + arg2[17])),
                 arg2[18],
-                (ushort)((arg2[19] << 8) + arg2[20]), new ArraySegment<byte>(arg2, 20, arg2[18] & 15));
+                (ushort)((arg2[19] << 8) + arg2[20]), new ArraySegment<byte>(arg2, 21, dataLength == 0 ? 0 : dataLength - 1)); // protect against unknown datagrams with datalength = 0
             return new KnxTunnelingRequest(arg2[7], arg2[8], cemiFrame);
         }
 

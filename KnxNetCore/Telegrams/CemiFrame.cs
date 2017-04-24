@@ -2,15 +2,23 @@
 
 namespace KnxNetCore.Telegrams
 {
-    public class CemiFrame
+    public class CemiFrame // common External Message Interface
     {
-        //+---------+--------+--------+--------+--------+---------+---------+--------+---------+
-        //| Header  |  Msg   |Add.Info| Ctrl 1 | Ctrl 2 | Source  | Dest.   |  Data  |   APDU  |
-        //|         | Code   | Length |        |        | Address | Address | Length |         |
-        //+---------+--------+--------+--------+--------+---------+---------+--------+---------+
-        //  6 bytes   1 byte   1 byte   1 byte   1 byte   2 bytes   2 bytes   1 byte   2 bytes
+        //
+        // transport layer control information (TPCI)
+        // application layer control information (APCI)
+        // application control bits (APCI)
+        // application protocol data unit (APDU) 
+        //
+        //
+        //
 
-        //    Header = See below the structure of a cEMI header
+        //+--------+--------+--------+--------+---------+---------+--------+---------+
+        //|  Msg   |Add.Info| Ctrl 1 | Ctrl 2 | Source  | Dest.   |  Data  |   APDU  |
+        //| Code   | Length |        |        | Address | Address | Length |         |
+        //+--------+--------+--------+--------+---------+---------+--------+---------+
+        //  1 byte   1 byte   1 byte   1 byte   2 bytes   2 bytes   1 byte   2 bytes
+
         //    Message Code    = See below.On Appendix A is the list of all existing EMI and cEMI codes
         //    Add.Info Length = 0x00 - no additional info
 
@@ -26,6 +34,34 @@ namespace KnxNetCore.Telegrams
         //                       protocol control information(TPCI), application protocol control
         //                       information(APCI) and data passed as an argument from higher layers of
         //                       the KNX communication stack
+
+        //Data Link Layer Message
+
+        //Primitive Code
+        //---------------  -------
+
+        //L_Raw.req          0x10
+        //L_Data.req         0x11  Data Service.Primitive used for transmitting a data frame
+        //L_Poll_Data.req    0x13  Poll Data Service
+
+        //    FROM DATA LINK LAYER TO NETWORK LAYER
+
+        //Data Link Layer Message
+
+        //Primitive Code
+        //---------------  -------
+
+        //L_Poll_Data.con    0x25  Poll Data Service
+        //    L_Data.ind     0x29  Data Service. Primitive used for receiving a data frame
+
+        //L_Busmon.ind       0x2B  Bus Monitor Service
+        //    L_Raw.ind      0x2D
+
+        //L_Data.con         0x2E  Data Service. Primitive used for local confirmation that a frame was sent
+
+        //    (does not indicate a successful receive though)
+
+        //L_Raw.con          0x2F
 
         //Control Field 1
 
@@ -106,17 +142,17 @@ namespace KnxNetCore.Telegrams
         {
             GroupAddress = 0x80
         }
-        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, ushort sourceAddress, ushort destinationAddress, byte dataLength, ushort apdu)
+        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu)
             : this(messageCode, control1, control2, sourceAddress, destinationAddress, dataLength, apdu, new ArraySegment<byte>())
         { }
 
-        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, ushort sourceAddress, ushort destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
+        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
         {
             MessageCode = messageCode;
             Control1 = control1;
             Control2 = control2;
-            SourceAddress = IndividualAddress.FromUShort(sourceAddress);
-            DestinationAddress = GroupAddress.FromUShort(destinationAddress);
+            SourceAddress = sourceAddress;
+            DestinationAddress = destinationAddress;
             DataLength = dataLength;
             Apdu = apdu;
             Data = data;
