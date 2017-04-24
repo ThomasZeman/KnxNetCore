@@ -90,7 +90,7 @@ namespace KnxNetCore
 
         public static void Serialize(CemiFrame cemiFrame, MemoryStream memoryStream)
         {
-            memoryStream.WriteByte(cemiFrame.MessageCode);
+            memoryStream.WriteByte((byte)cemiFrame.MessageCode);
             memoryStream.WriteByte(0); // No additional data
             memoryStream.WriteByte((byte)cemiFrame.Control1);
             memoryStream.WriteByte((byte)cemiFrame.Control2);
@@ -167,7 +167,7 @@ namespace KnxNetCore
         {
             var dataLength = arg2[18] & 15;
             var cemiFrame = new CemiFrame(
-                arg2[10],
+                (CemiFrame.MessageCodes) arg2[10],
                 (CemiFrame.Control1Flags)arg2[12],
                 (CemiFrame.Control2Flags)arg2[13],
                 IndividualAddress.FromUShort((ushort)((arg2[14] << 8) + arg2[15])),

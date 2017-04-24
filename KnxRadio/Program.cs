@@ -47,13 +47,13 @@ namespace KnxRadio
                     CemiFrame cemiFrame = null;
                     if (ck.Key == ConsoleKey.N)
                     {
-                        cemiFrame = new CemiFrame(0x11,
+                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest, 
                             CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
                             CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x81);
                     }
                     else if (ck.Key == ConsoleKey.F)
                     {
-                        cemiFrame = new CemiFrame(0x11,
+                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
                             CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
                             CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x80);
 

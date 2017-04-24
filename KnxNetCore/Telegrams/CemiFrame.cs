@@ -104,6 +104,21 @@ namespace KnxNetCore.Telegrams
         // 3-0  | Extended Frame Format - 0x0 standard frame
         //------+---------------------------------------------------------------
 
+        public enum MessageCodes : byte
+        {
+            DataRequest = 0x11,
+            DataIndication = 0x29,
+            DataConfirmation = 0x2e,
+
+            RawRequest = 0x10,
+            RawIndication = 0x2d,
+            RawConfirmation = 0x2f,
+
+            PollDataRequest = 0x13,
+            PollDataConfirmation = 0x25,
+            BusmonitorIndication = 0x2b
+        }
+
         [Flags]
         public enum Control1Flags : byte
         {
@@ -142,11 +157,11 @@ namespace KnxNetCore.Telegrams
         {
             GroupAddress = 0x80
         }
-        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu)
+        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu)
             : this(messageCode, control1, control2, sourceAddress, destinationAddress, dataLength, apdu, new ArraySegment<byte>())
         { }
 
-        public CemiFrame(byte messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
+        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
         {
             MessageCode = messageCode;
             Control1 = control1;
@@ -158,13 +173,13 @@ namespace KnxNetCore.Telegrams
             Data = data;
         }
 
-        public byte MessageCode { get; }
+        public MessageCodes MessageCode { get; }
 
         public Control1Flags Control1 { get; }
 
         public Control2Flags Control2 { get; }
 
-        public Commands Command => (Commands) ((Apdu >> 6) & 15);
+        public Commands Command => (Commands)((Apdu >> 6) & 15);
 
         public IndividualAddress SourceAddress { get; }
         public GroupAddress DestinationAddress { get; }
