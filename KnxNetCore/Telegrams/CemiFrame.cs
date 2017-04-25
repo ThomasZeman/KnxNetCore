@@ -133,7 +133,7 @@ namespace KnxNetCore.Telegrams
             StandardFrame = 0x80
         }
 
-        public enum Commands
+        public enum Commands : byte
         {
             ValueRead = 0,
             ValueResponse = 1,
@@ -155,7 +155,10 @@ namespace KnxNetCore.Telegrams
 
         public enum Control2Flags : byte
         {
-            GroupAddress = 0x80
+            GroupAddress = 0x80,
+            HopCount2 = 0x40,
+            HopCount1 = 0x20,
+            HopCount0 = 0x10
         }
         public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu)
             : this(messageCode, control1, control2, sourceAddress, destinationAddress, dataLength, apdu, new ArraySegment<byte>())

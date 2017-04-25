@@ -47,7 +47,7 @@ namespace KnxRadio
                     CemiFrame cemiFrame = null;
                     if (ck.Key == ConsoleKey.N)
                     {
-                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest, 
+                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
                             CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
                             CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x81);
                     }
@@ -56,7 +56,13 @@ namespace KnxRadio
                         cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
                             CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
                             CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x80);
-
+                    }
+                    else if (ck.Key == ConsoleKey.R)
+                    {
+                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
+                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
+                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60),
+                            GroupAddress.FromGroups(0, 0, 6), 1, (ushort)(CemiFrame.Commands.ValueRead) << 6);
                     }
                     else if (ck.Key == ConsoleKey.Escape)
                     {
@@ -66,7 +72,7 @@ namespace KnxRadio
                     {
                         var task = connection.SendTunnelingRequest(cemiFrame);
                         task.Wait();
-                        Console.WriteLine("Seq sent: "+ task.Result);
+                        Console.WriteLine("Seq sent: " + task.Result);
                     }
                 }
             }
