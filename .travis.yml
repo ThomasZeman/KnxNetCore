@@ -3,9 +3,7 @@ mono: none
 dotnet: 1.0.3
 dist: trusty
 solution: KnxNetCore.sln
-install:
-  - nuget restore KnxNetCore.sln
-  - nuget install xunit.runners -Version 2.3.0 -OutputDirectory testrunner
+before_script:
+  - dotnet restore
 script:
-  - xbuild /p:Configuration=Release KnxNetCore.sln
-  - mono ./testrunner/xunit.runners.2.3.0/tools/xunit.console.clr4.exe ./bin/KnxNetCore.UnitTests/bin/Release/netcoreapp1.0/KnxNetCore.UnitTests.dll
+  - dotnet build
