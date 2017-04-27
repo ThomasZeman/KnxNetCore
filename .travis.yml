@@ -7,3 +7,5 @@ before_script:
   - dotnet restore
 script:
   - dotnet build
+  - cd ./KnxNetCore.UnitTests/
+  - dotnet xunit
