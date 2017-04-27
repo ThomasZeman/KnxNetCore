@@ -35,6 +35,7 @@ namespace KnxRadio
 
         public static void Main(string[] args)
         {
+            // travis test
             // Establish tunneling connection with gateway at 10.0.0.135
             _trace = new ConsoleTrace();
             var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
