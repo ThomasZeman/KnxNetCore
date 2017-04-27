@@ -21,15 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Amplifier" Version="0.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta1-build1309" />
     <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Amplifier">
-      <HintPath>..\bin\KnxNetCore\bin\Debug\netcoreapp1.0\Amplifier.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

@@ -16,9 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Amplifier">
-      <HintPath>..\bin\KnxNetCore\bin\Debug\netcoreapp1.0\Amplifier.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Amplifier" Version="0.1.1" />
   </ItemGroup>
 
 </Project>

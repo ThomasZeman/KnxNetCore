@@ -13,6 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Amplifier" Version="0.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KnxNetCore\KnxNetCore.csproj" />
   </ItemGroup>
 
