@@ -35,7 +35,13 @@ namespace KnxRadio
 
         public static void Main(string[] args)
         {
-            // travis test
+
+            var dressingLight = new Entity(
+                new IntegerEntityAddress(123),
+                new[] { new Switch() });
+
+            var dressingLightButton = new Entity(new IntegerEntityAddress(456), new[] { new Button(new IntegerEntityAddress(123)) });
+
             // Establish tunneling connection with gateway at 10.0.0.135
             _trace = new ConsoleTrace();
             var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
