@@ -129,13 +129,24 @@ namespace KnxRadio
 
     public class Button : IComponent
     {
+        private readonly IEntityAddress _targetEntityAddress;
+
+        public Button(IEntityAddress targetEntityAddress)
+        {
+            _targetEntityAddress = targetEntityAddress;
+        }
+
         public void AddedToEntity(Entity entity)
         {            
         }
 
         public async Task Receive(Message message)
         {
-            return true;
+        }
+
+        public void Switch(bool switchState)
+        {
+            
         }
     }
 }
