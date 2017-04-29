@@ -42,6 +42,12 @@ namespace KnxRadio
 
             var dressingLightButton = new Entity(new IntegerEntityAddress(456), new[] { new Button(new IntegerEntityAddress(123)) });
 
+            var messageBus = new MessageBus(new[] { dressingLightButton, dressingLight });
+
+            messageBus.Send(new IntegerEntityAddress(123), new SwitchMessage(new IntegerEntityAddress(456), new IntegerEntityAddress(123), true));
+
+            Console.ReadKey();
+
             // Establish tunneling connection with gateway at 10.0.0.135
             _trace = new ConsoleTrace();
             var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);

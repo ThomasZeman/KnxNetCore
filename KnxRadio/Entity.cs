@@ -18,13 +18,13 @@ namespace KnxRadio
             _components = components.ToArray();
             for (int i = 0; i < _components.Length; i++)
             {
-              _components[i].AddedToEntity(this);
+                _components[i].AddedToEntity(this);
             }
         }
 
         public async Task Receive(Message message)
         {
-            if (message.DestinationAddress != Address)
+            if (!Equals(message.DestinationAddress, Address))
             {
                 return;
             }
@@ -107,14 +107,21 @@ namespace KnxRadio
         {
             return !Equals(left, right);
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Value)}: {Value}";
+        }
     }
 
     public class Switch : IComponent
     {
+        private Entity _entity;
         public bool State { get; private set; }
 
         public void AddedToEntity(Entity entity)
         {
+            _entity = entity;
         }
 
         public async Task Receive(Message message)
@@ -123,6 +130,7 @@ namespace KnxRadio
             if (switchMessageState.HasValue)
             {
                 State = switchMessageState.Value;
+                Console.WriteLine($"Address {_entity.Address} Changed to: {State}");
             }
         }
     }
@@ -137,7 +145,7 @@ namespace KnxRadio
         }
 
         public void AddedToEntity(Entity entity)
-        {            
+        {
         }
 
         public async Task Receive(Message message)
@@ -146,7 +154,34 @@ namespace KnxRadio
 
         public void Switch(bool switchState)
         {
-            
+
+        }
+    }
+
+    public class MessageBus
+    {
+        // Design: Keep address format flexible atm. Instead of genericizing everything with some TAddress do dynamic
+        // checks and casts to reduce noise in type definitions
+
+        Dictionary<IEntityAddress, Entity> _entities = new Dictionary<IEntityAddress, Entity>();
+
+        public MessageBus(IEnumerable<Entity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                _entities.Add(entity.Address, entity);
+            }
+        }
+
+        // Design: async signatures really necessary?
+
+        public void Send(IEntityAddress destinationAddress, Message message)
+        {
+            Entity entity;
+            if (_entities.TryGetValue(destinationAddress, out entity))
+            {
+                entity.Receive(message);
+            }
         }
     }
 }
