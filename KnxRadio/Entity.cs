@@ -209,14 +209,17 @@ namespace KnxRadio
         // Dependency during creation: Bus and Entities need to reference each other in some way so "immutability first" cannot apply for one of the them. 
         // Choosing: Bus is there first, entities come (and go?) later
 
-        ImmutableDictionary<IEntityAddress, IMessageSink> _entities = ImmutableDictionary<IEntityAddress, IMessageSink>.Empty;
+        ImmutableDictionary<IEntityAddress, ImmutableList<IMessageSink>> _entities = ImmutableDictionary<IEntityAddress, ImmutableList<IMessageSink>>.Empty;
 
         private void Send(Message message)
         {
-            IMessageSink entity;
+            ImmutableList<IMessageSink> entity;
             if (_entities.TryGetValue(message.MessageHeader.DestinationAddress, out entity))
             {
-                entity.Receive(message);
+                foreach (var messageSink in entity)
+                {
+                    messageSink.Receive(message);
+                }
             }
         }
 
@@ -227,7 +230,17 @@ namespace KnxRadio
 
         internal void AddMessageSink(IEntityAddress address, IMessageSink entity)
         {
-            _entities = _entities.Add(address, entity);
+            ImmutableList<IMessageSink> list;
+            if (_entities.TryGetValue(address, out list))
+            {
+                list = list.Add(entity);
+            }
+            else
+            {
+                list = ImmutableList<IMessageSink>.Empty.Add(entity);            
+            }
+            _entities = _entities.SetItem(address, list);
+
         }
 
         private class MessageBusInlet : IMessageBusInlet

@@ -35,6 +35,10 @@ namespace KnxRadio
 
         public static void Main(string[] args)
         {
+            // Establish tunneling connection with gateway at 10.0.0.135
+            _trace = new ConsoleTrace();
+            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
+
 
             var messageBus = new MessageBus();
 
@@ -45,34 +49,24 @@ namespace KnxRadio
             var button = new Button(new IntegerEntityAddress(123));
             var dressingLightButton = new Entity(messageBus, new IntegerEntityAddress(456), new[] { button });
 
-            button.Switch();
-            button.Switch();
+            var binding = new KnxBinding(connection, messageBus, new IntegerEntityAddress(10000));
+            binding.AddSwitch(GroupAddress.FromGroups(0,0,6), new IntegerEntityAddress(123));
 
             Console.ReadKey();
+            button.Switch();
+            Console.ReadKey();
+            button.Switch();
 
-            // Establish tunneling connection with gateway at 10.0.0.135
-            _trace = new ConsoleTrace();
-            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
             connection.KnxEventReceived += Connection_KnxEventReceived;
+
+
             for (;;)
             {
                 if (Console.KeyAvailable)
                 {
                     var ck = Console.ReadKey();
                     CemiFrame cemiFrame = null;
-                    if (ck.Key == ConsoleKey.N)
-                    {
-                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
-                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
-                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x81);
-                    }
-                    else if (ck.Key == ConsoleKey.F)
-                    {
-                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
-                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
-                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), GroupAddress.FromGroups(0, 0, 6), 1, 0x80);
-                    }
-                    else if (ck.Key == ConsoleKey.R)
+                    if (ck.Key == ConsoleKey.R)
                     {
                         cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
                             CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
