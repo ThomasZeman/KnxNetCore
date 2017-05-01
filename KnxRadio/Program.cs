@@ -36,15 +36,18 @@ namespace KnxRadio
         public static void Main(string[] args)
         {
 
-            var dressingLight = new Entity(
+            var messageBus = new MessageBus();
+
+
+            var dressingLight = new Entity(messageBus,
                 new IntegerEntityAddress(123),
                 new[] { new Switch() });
 
-            var dressingLightButton = new Entity(new IntegerEntityAddress(456), new[] { new Button(new IntegerEntityAddress(123)) });
+            var button = new Button(new IntegerEntityAddress(123));
+            var dressingLightButton = new Entity(messageBus, new IntegerEntityAddress(456), new[] { button });
 
-            var messageBus = new MessageBus(new[] { dressingLightButton, dressingLight });
-
-            messageBus.Send(new IntegerEntityAddress(123), new SwitchMessage(new IntegerEntityAddress(456), new IntegerEntityAddress(123), true));
+            button.Switch();
+            button.Switch();
 
             Console.ReadKey();
 

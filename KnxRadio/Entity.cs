@@ -1,36 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace KnxRadio
 {
-    public class Entity
+    public class Entity : IMessageSink, IMessageSource
     {
         public IEntityAddress Address { get; private set; }
 
         private IComponent[] _components;
+        public IMessageBusInlet Inlet { get; }
 
-        public Entity(IEntityAddress address, IEnumerable<IComponent> components)
+        public Entity(MessageBus messageBus, IEntityAddress address, IEnumerable<IComponent> components)
         {
+            Inlet = messageBus.CreateInletFor(this);
             Address = address;
             _components = components.ToArray();
             for (int i = 0; i < _components.Length; i++)
             {
                 _components[i].AddedToEntity(this);
             }
+            messageBus.AddMessageSink(this);
         }
 
-        public async Task Receive(Message message)
+        //public async Task Receive(Message message)
+        //{
+        //    if (!Equals(message.DestinationAddress, Address))
+        //    {
+        //        return;
+        //    }
+        //    for (int i = 0; i < _components.Length; i++)
+        //    {
+        //        await _components[i].Receive(message);
+        //    }
+        //}
+
+        public void Receive(Message message)
         {
-            if (!Equals(message.DestinationAddress, Address))
-            {
-                return;
-            }
             for (int i = 0; i < _components.Length; i++)
             {
-                await _components[i].Receive(message);
+                _components[i].Receive(message);
             }
         }
     }
@@ -44,21 +57,38 @@ namespace KnxRadio
 
     public class Message
     {
+        public MessageHeader MessageHeader { get; }
+        public IMessagePayload MessagePayload { get; }
+
+        public Message(MessageHeader messageHeader, IMessagePayload messagePayload)
+        {
+            MessageHeader = messageHeader;
+            MessagePayload = messagePayload;
+        }
+    }
+
+    public class MessageHeader
+    {
         public IEntityAddress SourceAddress { get; private set; }
         public IEntityAddress DestinationAddress { get; private set; }
 
-        public Message(IEntityAddress sourceAddress, IEntityAddress destinationAddress)
+        public MessageHeader(IEntityAddress sourceAddress, IEntityAddress destinationAddress)
         {
             SourceAddress = sourceAddress;
             DestinationAddress = destinationAddress;
         }
     }
 
-    public class SwitchMessage : Message
+    public interface IMessagePayload
+    {
+
+    }
+
+    public class SwitchMessage : IMessagePayload
     {
         public bool SwitchState { get; }
 
-        public SwitchMessage(IEntityAddress sourceAddress, IEntityAddress destinationAddress, bool switchState) : base(sourceAddress, destinationAddress)
+        public SwitchMessage(bool switchState)
         {
             SwitchState = switchState;
         }
@@ -126,7 +156,7 @@ namespace KnxRadio
 
         public async Task Receive(Message message)
         {
-            bool? switchMessageState = (message as SwitchMessage)?.SwitchState;
+            bool? switchMessageState = (message.MessagePayload as SwitchMessage)?.SwitchState;
             if (switchMessageState.HasValue)
             {
                 State = switchMessageState.Value;
@@ -137,7 +167,9 @@ namespace KnxRadio
 
     public class Button : IComponent
     {
+        private Entity _entity;
         private readonly IEntityAddress _targetEntityAddress;
+        private bool _switchState;
 
         public Button(IEntityAddress targetEntityAddress)
         {
@@ -146,15 +178,17 @@ namespace KnxRadio
 
         public void AddedToEntity(Entity entity)
         {
+            _entity = entity;
         }
 
         public async Task Receive(Message message)
         {
         }
 
-        public void Switch(bool switchState)
+        public void Switch()
         {
-
+            _switchState = !_switchState;
+            _entity.Inlet.Send(_targetEntityAddress, new SwitchMessage(_switchState));
         }
     }
 
@@ -163,25 +197,71 @@ namespace KnxRadio
         // Design: Keep address format flexible atm. Instead of genericizing everything with some TAddress do dynamic
         // checks and casts to reduce noise in type definitions
 
-        Dictionary<IEntityAddress, Entity> _entities = new Dictionary<IEntityAddress, Entity>();
-
-        public MessageBus(IEnumerable<Entity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                _entities.Add(entity.Address, entity);
-            }
-        }
+        // Design: What to guarantees to achieve? 
+        // 1. All Receivers done before Bus processes next message? No diff. between async and sync except for thread being free'd
+        // 2. Requirement that all relevant receivers get called at the same time? Only partly achievable with async sig because bad implementation could still block sync
+        // 3. NFC Scalability: How to allow broadcast to thousands of receivers
+        // 4. NFC Performance High Throughput: How to ensure high processing rate of messages
+        // 5. NFC Fault Tolerance: What to do when components throw exceptions
 
         // Design: async signatures really necessary?
 
-        public void Send(IEntityAddress destinationAddress, Message message)
+        // Dependency during creation: Bus and Entities need to reference each other in some way so "immutability first" cannot apply for one of the them. 
+        // Choosing: Bus is there first, entities come (and go?) later
+
+        ImmutableDictionary<IEntityAddress, IMessageSink> _entities = ImmutableDictionary<IEntityAddress, IMessageSink>.Empty;
+
+        private void Send(Message message)
         {
-            Entity entity;
-            if (_entities.TryGetValue(destinationAddress, out entity))
+            IMessageSink entity;
+            if (_entities.TryGetValue(message.MessageHeader.DestinationAddress, out entity))
             {
                 entity.Receive(message);
             }
         }
+
+        public IMessageBusInlet CreateInletFor(IMessageSource messageSource)
+        {
+            return new MessageBusInlet(this, messageSource);
+        }
+
+        internal void AddMessageSink(Entity entity)
+        {
+            _entities = _entities.Add(entity.Address, entity);
+        }
+
+        private class MessageBusInlet : IMessageBusInlet
+        {
+            private readonly MessageBus _messageBus;
+            private readonly IMessageSource _messageSource;
+
+            public MessageBusInlet(MessageBus messageBus, IMessageSource messageSource)
+            {
+                _messageBus = messageBus;
+                _messageSource = messageSource;
+            }
+
+            public void Send(IEntityAddress destinationAddress, IMessagePayload message)
+            {
+                var sourceAddress = _messageSource.Address;
+                _messageBus.Send(new Message(new MessageHeader(sourceAddress, destinationAddress), message));
+            }
+        }
+    }
+
+    public interface IMessageSink
+    {
+        IEntityAddress Address { get; }
+        void Receive(Message message);
+    }
+
+    public interface IMessageSource
+    {
+        IEntityAddress Address { get; }
+    }
+
+    public interface IMessageBusInlet
+    {
+        void Send(IEntityAddress destinationAddress, IMessagePayload message);
     }
 }
