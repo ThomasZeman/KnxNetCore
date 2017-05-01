@@ -38,7 +38,6 @@ namespace KnxRadio
 
             var messageBus = new MessageBus();
 
-
             var dressingLight = new Entity(messageBus,
                 new IntegerEntityAddress(123),
                 new[] { new Switch() });

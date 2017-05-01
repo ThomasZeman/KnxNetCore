@@ -24,7 +24,7 @@ namespace KnxRadio
             {
                 _components[i].AddedToEntity(this);
             }
-            messageBus.AddMessageSink(this);
+            messageBus.AddMessageSink(address, this);
         }
 
         //public async Task Receive(Message message)
@@ -225,9 +225,9 @@ namespace KnxRadio
             return new MessageBusInlet(this, messageSource);
         }
 
-        internal void AddMessageSink(Entity entity)
+        internal void AddMessageSink(IEntityAddress address, IMessageSink entity)
         {
-            _entities = _entities.Add(entity.Address, entity);
+            _entities = _entities.Add(address, entity);
         }
 
         private class MessageBusInlet : IMessageBusInlet
@@ -251,7 +251,6 @@ namespace KnxRadio
 
     public interface IMessageSink
     {
-        IEntityAddress Address { get; }
         void Receive(Message message);
     }
 
