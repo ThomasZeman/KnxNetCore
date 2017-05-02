@@ -2,8 +2,8 @@
 {
     public class MessageHeader
     {
-        public IMessageBusAddress SourceAddress { get; private set; }
-        public IMessageBusAddress DestinationAddress { get; private set; }
+        public IMessageBusAddress SourceAddress { get; }
+        public IMessageBusAddress DestinationAddress { get; }
 
         public MessageHeader(IMessageBusAddress sourceAddress, IMessageBusAddress destinationAddress)
         {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
+﻿using System.Collections.Immutable;
 using KnxNetCore;
 using KnxNetCore.Telegrams;
 
@@ -11,7 +8,6 @@ namespace KnxRadio
     {
         private readonly KnxConnection _knxConnection;
         private readonly MessageBus _messageBus;
-        private readonly IMessageBusAddress _sendingAddress;
         private IMessageBusInlet _busInlet;
 
         private ImmutableDictionary<IMessageBusAddress, GroupAddress> _mapping = ImmutableDictionary<IMessageBusAddress, GroupAddress>.Empty;
@@ -21,10 +17,8 @@ namespace KnxRadio
         {
             _knxConnection = knxConnection;
             _messageBus = messageBus;
-            _sendingAddress = sendingAddress;
+            Address = sendingAddress;
             _busInlet = _messageBus.CreateInletFor(this);
-            // Introduce some sort of promiscuous mode for bus or allow sinks to register for several addresses?
-            // _messageBus.AddMessageSink(this);
             _knxConnection.KnxEventReceived += _knxConnection_KnxEventReceived;
         }
 
@@ -66,6 +60,6 @@ namespace KnxRadio
             _knxConnection.SendTunnelingRequest(cemiFrame).Wait();
         }
 
-        public IMessageBusAddress Address => _sendingAddress;
+        public IMessageBusAddress Address { get; }
     }
 }

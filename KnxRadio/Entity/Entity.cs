@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
 
 namespace KnxRadio
 {
@@ -9,7 +7,7 @@ namespace KnxRadio
     {
         public IMessageBusAddress Address { get; private set; }
 
-        private IComponent[] _components;
+        private readonly IComponent[] _components;
         public IMessageBusInlet Inlet { get; }
 
         public Entity(MessageBus messageBus, IMessageBusAddress address, IEnumerable<IComponent> components)
@@ -23,18 +21,6 @@ namespace KnxRadio
             }
             messageBus.AddMessageSink(address, this, this);
         }
-
-        //public async Task Receive(Message message)
-        //{
-        //    if (!Equals(message.DestinationAddress, Address))
-        //    {
-        //        return;
-        //    }
-        //    for (int i = 0; i < _components.Length; i++)
-        //    {
-        //        await _components[i].Receive(message);
-        //    }
-        //}
 
         public void Receive(Message message)
         {
