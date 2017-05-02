@@ -5,10 +5,10 @@ namespace KnxRadio
     public class Button : IComponent
     {
         private Entity _entity;
-        private readonly IEntityAddress _targetEntityAddress;
+        private readonly IMessageBusAddress _targetEntityAddress;
         private bool _switchState;
 
-        public Button(IEntityAddress targetEntityAddress)
+        public Button(IMessageBusAddress targetEntityAddress)
         {
             _targetEntityAddress = targetEntityAddress;
         }

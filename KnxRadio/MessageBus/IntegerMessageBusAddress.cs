@@ -2,16 +2,16 @@
 
 namespace KnxRadio
 {
-    class IntegerEntityAddress : IEntityAddress, IEquatable<IntegerEntityAddress>
+    class IntegerMessageBusAddress : IMessageBusAddress, IEquatable<IntegerMessageBusAddress>
     {
         public int Value { get; }
 
-        public IntegerEntityAddress(int value)
+        public IntegerMessageBusAddress(int value)
         {
             Value = value;
         }
 
-        public bool Equals(IntegerEntityAddress other)
+        public bool Equals(IntegerMessageBusAddress other)
         {
             if (Object.ReferenceEquals(null, other)) return false;
             if (Object.ReferenceEquals(this, other)) return true;
@@ -23,7 +23,7 @@ namespace KnxRadio
             if (Object.ReferenceEquals(null, obj)) return false;
             if (Object.ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IntegerEntityAddress)obj);
+            return Equals((IntegerMessageBusAddress)obj);
         }
 
         public override int GetHashCode()
@@ -31,12 +31,12 @@ namespace KnxRadio
             return Value;
         }
 
-        public static bool operator ==(IntegerEntityAddress left, IntegerEntityAddress right)
+        public static bool operator ==(IntegerMessageBusAddress left, IntegerMessageBusAddress right)
         {
             return Object.Equals(left, right);
         }
 
-        public static bool operator !=(IntegerEntityAddress left, IntegerEntityAddress right)
+        public static bool operator !=(IntegerMessageBusAddress left, IntegerMessageBusAddress right)
         {
             return !Object.Equals(left, right);
         }

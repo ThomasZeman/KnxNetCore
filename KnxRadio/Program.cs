@@ -43,14 +43,14 @@ namespace KnxRadio
             var messageBus = new MessageBus();
 
             var dressingLight = new Entity(messageBus,
-                new IntegerEntityAddress(123),
+                new IntegerMessageBusAddress(123),
                 new[] { new Switch() });
 
-            var button = new Button(new IntegerEntityAddress(123));
-            var dressingLightButton = new Entity(messageBus, new IntegerEntityAddress(456), new[] { button });
+            var button = new Button(new IntegerMessageBusAddress(123));
+            var dressingLightButton = new Entity(messageBus, new IntegerMessageBusAddress(456), new[] { button });
 
-            var binding = new KnxBinding(connection, messageBus, new IntegerEntityAddress(10000));
-            binding.AddSwitch(GroupAddress.FromGroups(0,0,6), new IntegerEntityAddress(123));
+            var binding = new KnxBinding(connection, messageBus, new IntegerMessageBusAddress(10000));
+            binding.AddSwitch(GroupAddress.FromGroups(0,0,6), new IntegerMessageBusAddress(123));
 
             connection.KnxEventReceived += Connection_KnxEventReceived;
 

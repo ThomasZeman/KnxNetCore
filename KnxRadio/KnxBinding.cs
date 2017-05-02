@@ -11,13 +11,13 @@ namespace KnxRadio
     {
         private readonly KnxConnection _knxConnection;
         private readonly MessageBus _messageBus;
-        private readonly IEntityAddress _sendingAddress;
+        private readonly IMessageBusAddress _sendingAddress;
         private IMessageBusInlet _busInlet;
 
-        private ImmutableDictionary<IEntityAddress, GroupAddress> _mapping = ImmutableDictionary<IEntityAddress, GroupAddress>.Empty;
-        private ImmutableDictionary<GroupAddress, IEntityAddress> _reverseMapping = ImmutableDictionary<GroupAddress, IEntityAddress>.Empty;
+        private ImmutableDictionary<IMessageBusAddress, GroupAddress> _mapping = ImmutableDictionary<IMessageBusAddress, GroupAddress>.Empty;
+        private ImmutableDictionary<GroupAddress, IMessageBusAddress> _reverseMapping = ImmutableDictionary<GroupAddress, IMessageBusAddress>.Empty;
 
-        public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IEntityAddress sendingAddress)
+        public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IMessageBusAddress sendingAddress)
         {
             _knxConnection = knxConnection;
             _messageBus = messageBus;
@@ -28,7 +28,7 @@ namespace KnxRadio
             _knxConnection.KnxEventReceived += _knxConnection_KnxEventReceived;
         }
 
-        public void AddSwitch(GroupAddress groupAddress, IEntityAddress address)
+        public void AddSwitch(GroupAddress groupAddress, IMessageBusAddress address)
         {
             _mapping = _mapping.Add(address, groupAddress);
             _reverseMapping = _reverseMapping.Add(groupAddress, address);
@@ -37,7 +37,7 @@ namespace KnxRadio
 
         private void _knxConnection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
-            IEntityAddress entityAddress;
+            IMessageBusAddress entityAddress;
             if (_reverseMapping.TryGetValue(arg2.DestinationAddress, out entityAddress))
             {
                 bool onOff = (arg2.Apdu & 1) == 1;
@@ -66,6 +66,6 @@ namespace KnxRadio
             _knxConnection.SendTunnelingRequest(cemiFrame).Wait();
         }
 
-        public IEntityAddress Address => _sendingAddress;
+        public IMessageBusAddress Address => _sendingAddress;
     }
 }
