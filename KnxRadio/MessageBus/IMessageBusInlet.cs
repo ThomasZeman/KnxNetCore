@@ -2,6 +2,6 @@
 {
     public interface IMessageBusInlet
     {
-        void Send(IEntityAddress destinationAddress, IMessagePayload message);
+        void Send(IMessageBusAddress destinationAddress, IMessagePayload message);
     }
 }

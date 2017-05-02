@@ -31,7 +31,7 @@ namespace KnxRadio
             }
         }
 
-        ImmutableDictionary<IEntityAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<IEntityAddress, ImmutableList<SinkData>>.Empty;
+        ImmutableDictionary<IMessageBusAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<IMessageBusAddress, ImmutableList<SinkData>>.Empty;
         ImmutableDictionary<IMessageSource, int> _sourceToCorrelationId = ImmutableDictionary<IMessageSource, int>.Empty;
         private int _sourceIdCounter = 0;
 
@@ -57,7 +57,7 @@ namespace KnxRadio
             return new MessageBusInlet(this, messageSource, newSourceIdCounter);
         }
 
-        internal void AddMessageSink(IEntityAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
+        internal void AddMessageSink(IMessageBusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
         {
             ImmutableList<SinkData> list;
             int correlatingSourceId;
@@ -84,7 +84,7 @@ namespace KnxRadio
                 _correlatingSourceId = correlatingSourceId;
             }
 
-            public void Send(IEntityAddress destinationAddress, IMessagePayload message)
+            public void Send(IMessageBusAddress destinationAddress, IMessagePayload message)
             {
                 var sourceAddress = _messageSource.Address;
                 _messageBus.Send(new Message(new MessageHeader(sourceAddress, destinationAddress), message), _correlatingSourceId);

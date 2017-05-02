@@ -7,12 +7,12 @@ namespace KnxRadio
 {
     public class Entity : IMessageSink, IMessageSource
     {
-        public IEntityAddress Address { get; private set; }
+        public IMessageBusAddress Address { get; private set; }
 
         private IComponent[] _components;
         public IMessageBusInlet Inlet { get; }
 
-        public Entity(MessageBus messageBus, IEntityAddress address, IEnumerable<IComponent> components)
+        public Entity(MessageBus messageBus, IMessageBusAddress address, IEnumerable<IComponent> components)
         {
             Inlet = messageBus.CreateInletFor(this);
             Address = address;

@@ -2,6 +2,6 @@
 {
     public interface IMessageSource
     {
-        IEntityAddress Address { get; }
+        IMessageBusAddress Address { get; }
     }
 }
