@@ -52,11 +52,6 @@ namespace KnxRadio
             var binding = new KnxBinding(connection, messageBus, new IntegerEntityAddress(10000));
             binding.AddSwitch(GroupAddress.FromGroups(0,0,6), new IntegerEntityAddress(123));
 
-            Console.ReadKey();
-            button.Switch();
-            Console.ReadKey();
-            button.Switch();
-
             connection.KnxEventReceived += Connection_KnxEventReceived;
 
 
@@ -95,11 +90,6 @@ namespace KnxRadio
         {
             lock (RadioStations)
             {
-                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 0, 6)))
-                {
-                    bool onOff = (arg2.Apdu & 1) == 1;
-                    Console.WriteLine(onOff);
-                }
                 if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)) || Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 21)))
                 {
                     Console.WriteLine(arg2.Command);

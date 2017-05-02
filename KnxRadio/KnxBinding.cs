@@ -15,6 +15,7 @@ namespace KnxRadio
         private IMessageBusInlet _busInlet;
 
         private ImmutableDictionary<IEntityAddress, GroupAddress> _mapping = ImmutableDictionary<IEntityAddress, GroupAddress>.Empty;
+        private ImmutableDictionary<GroupAddress, IEntityAddress> _reverseMapping = ImmutableDictionary<GroupAddress, IEntityAddress>.Empty;
 
         public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IEntityAddress sendingAddress)
         {
@@ -30,12 +31,18 @@ namespace KnxRadio
         public void AddSwitch(GroupAddress groupAddress, IEntityAddress address)
         {
             _mapping = _mapping.Add(address, groupAddress);
-            _messageBus.AddMessageSink(address, this);
+            _reverseMapping = _reverseMapping.Add(groupAddress, address);
+            _messageBus.AddMessageSink(address, this, this);
         }
 
-        private void _knxConnection_KnxEventReceived(KnxConnection arg1, KnxNetCore.Telegrams.CemiFrame arg2)
+        private void _knxConnection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
-
+            IEntityAddress entityAddress;
+            if (_reverseMapping.TryGetValue(arg2.DestinationAddress, out entityAddress))
+            {
+                bool onOff = (arg2.Apdu & 1) == 1;
+                _busInlet.Send(entityAddress, new SwitchMessage(onOff));
+            }
         }
 
         public void Receive(Message message)

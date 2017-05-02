@@ -24,7 +24,7 @@ namespace KnxRadio
             {
                 _components[i].AddedToEntity(this);
             }
-            messageBus.AddMessageSink(address, this);
+            messageBus.AddMessageSink(address, this, this);
         }
 
         //public async Task Receive(Message message)
@@ -209,37 +209,55 @@ namespace KnxRadio
         // Dependency during creation: Bus and Entities need to reference each other in some way so "immutability first" cannot apply for one of the them. 
         // Choosing: Bus is there first, entities come (and go?) later
 
-        ImmutableDictionary<IEntityAddress, ImmutableList<IMessageSink>> _entities = ImmutableDictionary<IEntityAddress, ImmutableList<IMessageSink>>.Empty;
-
-        private void Send(Message message)
+        class SinkData
         {
-            ImmutableList<IMessageSink> entity;
-            if (_entities.TryGetValue(message.MessageHeader.DestinationAddress, out entity))
+            public IMessageSink Sink { get; }
+            public int CorrelatingSourceId { get; }
+
+            public SinkData(IMessageSink sink, int correlatingSourceId)
             {
-                foreach (var messageSink in entity)
+                Sink = sink;
+                CorrelatingSourceId = correlatingSourceId;
+            }
+        }
+
+        ImmutableDictionary<IEntityAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<IEntityAddress, ImmutableList<SinkData>>.Empty;
+        ImmutableDictionary<IMessageSource, int> _sourceToCorrelationId = ImmutableDictionary<IMessageSource, int>.Empty;
+        private int _sourceIdCounter = 0;
+
+        private void Send(Message message, int correlatingSourceId)
+        {
+            ImmutableList<SinkData> sinkList;
+            if (_sinkMapping.TryGetValue(message.MessageHeader.DestinationAddress, out sinkList))
+            {
+                foreach (var messageSink in sinkList)
                 {
-                    messageSink.Receive(message);
+                    if (messageSink.CorrelatingSourceId != correlatingSourceId)
+                    {
+                        messageSink.Sink.Receive(message);
+                    }
                 }
             }
         }
 
         public IMessageBusInlet CreateInletFor(IMessageSource messageSource)
         {
-            return new MessageBusInlet(this, messageSource);
+            var newSourceIdCounter = _sourceIdCounter++;
+            _sourceToCorrelationId = _sourceToCorrelationId.Add(messageSource, newSourceIdCounter);
+            return new MessageBusInlet(this, messageSource, newSourceIdCounter);
         }
 
-        internal void AddMessageSink(IEntityAddress address, IMessageSink entity)
+        internal void AddMessageSink(IEntityAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
         {
-            ImmutableList<IMessageSink> list;
-            if (_entities.TryGetValue(address, out list))
+            ImmutableList<SinkData> list;
+            int correlatingSourceId;
+            if (!_sourceToCorrelationId.TryGetValue(correlatingSource, out correlatingSourceId))
             {
-                list = list.Add(entity);
+                correlatingSourceId = -1;
             }
-            else
-            {
-                list = ImmutableList<IMessageSink>.Empty.Add(entity);            
-            }
-            _entities = _entities.SetItem(address, list);
+            _sinkMapping = _sinkMapping.SetItem(listeningFor, _sinkMapping.TryGetValue(listeningFor, out list) ?
+                list.Add(new SinkData(sink, correlatingSourceId)) :
+                ImmutableList<SinkData>.Empty.Add(new SinkData(sink, correlatingSourceId)));
 
         }
 
@@ -247,23 +265,26 @@ namespace KnxRadio
         {
             private readonly MessageBus _messageBus;
             private readonly IMessageSource _messageSource;
+            private readonly int _correlatingSourceId;
 
-            public MessageBusInlet(MessageBus messageBus, IMessageSource messageSource)
+            public MessageBusInlet(MessageBus messageBus, IMessageSource messageSource, int correlatingSourceId)
             {
                 _messageBus = messageBus;
                 _messageSource = messageSource;
+                _correlatingSourceId = correlatingSourceId;
             }
 
             public void Send(IEntityAddress destinationAddress, IMessagePayload message)
             {
                 var sourceAddress = _messageSource.Address;
-                _messageBus.Send(new Message(new MessageHeader(sourceAddress, destinationAddress), message));
+                _messageBus.Send(new Message(new MessageHeader(sourceAddress, destinationAddress), message), _correlatingSourceId);
             }
         }
     }
 
     public interface IMessageSink
     {
+
         void Receive(Message message);
     }
 
