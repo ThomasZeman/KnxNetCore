@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using KnxNetCore;
 using KnxNetCore.Telegrams;
 
@@ -10,8 +12,7 @@ namespace KnxRadio
         private readonly MessageBus _messageBus;
         private IMessageBusInlet _busInlet;
 
-        private ImmutableDictionary<IMessageBusAddress, GroupAddress> _mapping = ImmutableDictionary<IMessageBusAddress, GroupAddress>.Empty;
-        private ImmutableDictionary<GroupAddress, IMessageBusAddress> _reverseMapping = ImmutableDictionary<GroupAddress, IMessageBusAddress>.Empty;
+        private NtoMDictionary<IMessageBusAddress, GroupAddress> _mapping = new NtoMDictionary<IMessageBusAddress, GroupAddress>();
 
         public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IMessageBusAddress sendingAddress)
         {
@@ -24,30 +25,35 @@ namespace KnxRadio
 
         public void AddSwitch(GroupAddress groupAddress, IMessageBusAddress address)
         {
-            _mapping = _mapping.Add(address, groupAddress);
-            _reverseMapping = _reverseMapping.Add(groupAddress, address);
+            _mapping.Add(address, groupAddress);
             _messageBus.AddMessageSink(address, this, this);
         }
 
         private void _knxConnection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
-            IMessageBusAddress entityAddress;
-            if (_reverseMapping.TryGetValue(arg2.DestinationAddress, out entityAddress))
+            ImmutableList<IMessageBusAddress> entityAddresses;
+            if (_mapping.Mapping2.TryGetValue(arg2.DestinationAddress, out entityAddresses))
             {
                 bool onOff = (arg2.Apdu & 1) == 1;
-                _busInlet.Send(entityAddress, new SwitchMessage(onOff));
+                foreach (var messageBusAddress in entityAddresses)
+                {
+                    _busInlet.Send(messageBusAddress, new SwitchMessage(onOff));
+                }
             }
         }
 
         public void Receive(Message message)
         {
-            GroupAddress groupAddress;
-            if (_mapping.TryGetValue(message.MessageHeader.DestinationAddress, out groupAddress))
+            ImmutableList<GroupAddress> groupAddresses;
+            if (_mapping.Mapping1.TryGetValue(message.MessageHeader.DestinationAddress, out groupAddresses))
             {
                 var switching = message.MessagePayload as SwitchMessage;
                 if (switching != null)
                 {
-                    SendSwitchTelegramToKnxConnection(groupAddress, switching);
+                    foreach (var groupAddress in groupAddresses)
+                    {
+                        SendSwitchTelegramToKnxConnection(groupAddress, switching);
+                    }
                 }
             }
         }
@@ -61,5 +67,54 @@ namespace KnxRadio
         }
 
         public IMessageBusAddress Address { get; }
+    }
+
+    public class NtoMDictionary<T1, T2>
+    {
+        private ImmutableDictionary<T1, ImmutableList<T2>> _mapping1 = ImmutableDictionary<T1, ImmutableList<T2>>.Empty;
+        private ImmutableDictionary<T2, ImmutableList<T1>> _mapping2 = ImmutableDictionary<T2, ImmutableList<T1>>.Empty;
+
+        public ImmutableDictionary<T1, ImmutableList<T2>> Mapping1 => _mapping1;
+
+        public ImmutableDictionary<T2, ImmutableList<T1>> Mapping2 => _mapping2;
+
+        public void Add(T1 items1, T2 items2)
+        {
+            _mapping1 = _mapping1.AddToListOfValues(items1, items2);
+            _mapping2 = _mapping2.AddToListOfValues(items2, items1);
+        }
+
+        public void Add(ICollection<T1> items1, ICollection<T2> items2)
+        {
+            _mapping1 = _mapping1.AddNtoM(items1, items2);
+            _mapping2 = _mapping2.AddNtoM(items2, items1);
+        }
+    }
+
+    internal static class NtoMExtensions
+    {
+        public static ImmutableDictionary<T1, ImmutableList<T2>> AddNtoM<T1, T2>(this ImmutableDictionary<T1, ImmutableList<T2>> mapping1, ICollection<T1> items1, ICollection<T2> items2)
+        {
+            return mapping1.SetItems(
+                items1.SelectMany(
+                    item1 =>
+                    {
+                        return items2.Select(item2 => new KeyValuePair<T1, ImmutableList<T2>>(item1, mapping1.GetOrEmpty(item1).Add(item2)));
+                    }));
+        }
+    }
+
+    internal static class ImmutableDictionaryExtensions
+    {
+        public static ImmutableList<T2> GetOrEmpty<T1, T2>(this ImmutableDictionary<T1, ImmutableList<T2>> dictionary, T1 key)
+        {
+            ImmutableList<T2> list;
+            return dictionary.TryGetValue(key, out list) ? list : ImmutableList<T2>.Empty;
+        }
+
+        public static ImmutableDictionary<T1, ImmutableList<T2>> AddToListOfValues<T1, T2>(this ImmutableDictionary<T1, ImmutableList<T2>> dictionary, T1 key, T2 item)
+        {
+            return dictionary.SetItem(key, dictionary.GetOrEmpty(key).Add(item));
+        }
     }
 }
