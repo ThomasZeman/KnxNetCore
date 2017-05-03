@@ -6,31 +6,13 @@ using System.Threading.Tasks;
 using KnxNetCore;
 using KnxNetCore.Datapoints;
 using KnxNetCore.Telegrams;
+using KnxRadio.Model.Components;
 
 namespace KnxRadio
 {
     public class Program
     {
-        private static readonly string[] RadioStations =
-        {
 
-            "http://webradio.hitradion1.de:8000/listen.pls",
-            "http://media-ice.musicradio.com:80/CapitalYorkshireSouthWestMP3",
-            "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p",
-            "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio4fm_mf_p"
-        };
-
-        private static readonly string[] Announcers =
-        {
-            "n1.wav",
-            "captialfm.wav",
-            "bbc2.wav",
-            "bbc4.wav",
-            "radiooff.wav"
-        };
-
-        private static Process _lastProcess;
-        static int _radioCounter = -1;
         private static ITrace _trace;
 
         public static void Main(string[] args)
@@ -49,12 +31,11 @@ namespace KnxRadio
             var button = new Button(new IntegerMessageBusAddress(123));
             var dressingLightButton = new Entity(messageBus, new IntegerMessageBusAddress(456), new[] { button });
 
+            var radio = new Entity(messageBus, new IntegerMessageBusAddress(999), new[] { new Radio() });
+
             var binding = new KnxBinding(connection, messageBus, new IntegerMessageBusAddress(10000));
-            binding.AddSwitch(GroupAddress.FromGroups(0,0,6), new IntegerMessageBusAddress(123));
-
-            connection.KnxEventReceived += Connection_KnxEventReceived;
-
-
+            binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new IntegerMessageBusAddress(123));
+            binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new IntegerMessageBusAddress(999));
             for (;;)
             {
                 if (Console.KeyAvailable)
@@ -84,63 +65,5 @@ namespace KnxRadio
             connection.Dispose();
         }
 
-
-
-        private static void Connection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
-        {
-            lock (RadioStations)
-            {
-                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 20)) || Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 3, 21)))
-                {
-                    Console.WriteLine(arg2.Command);
-                    var result = Dpt9001.BytesToCelsius(new ArraySegment<byte>(arg2.Data.Array, arg2.Data.Offset, arg2.Data.Count));
-                    Console.WriteLine(result.Value + "C");
-                }
-                // When any event with destination group 0/4/0 is received switch to next radio station
-                if (Equals(arg2.DestinationAddress, GroupAddress.FromGroups(0, 4, 0)))
-                {
-                    if (_lastProcess != null)
-                    {
-                        try
-                        {
-                            _lastProcess.Kill();
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
-                        _lastProcess.Dispose();
-                        _lastProcess = null;
-                    }
-                    _radioCounter++;
-                    _trace.Write(TraceSeverities.Info, "Starting: {0}", Announcers[_radioCounter]);
-                    Process.Start("mpv", Announcers[_radioCounter]);
-                    if (_radioCounter == RadioStations.Length)
-                    {
-                        _radioCounter = -1;
-                        return;
-                    }
-                    // Start listening to radio station with "mpv" (linux) 
-                    var process = Process.Start(@"mpv", RadioStations[_radioCounter]);
-                    _lastProcess = process;
-                    // Wait 15mins and terminate current radio process
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(TimeSpan.FromMinutes(15));
-                        try
-                        {
-                            _trace.Write(TraceSeverities.Debug, "Trying to kill old process");
-                            process.Kill();
-                            process.Dispose();
-                            _radioCounter = -1;
-                        }
-                        catch (Exception ex)
-                        {
-                            _trace.Write(TraceSeverities.Error, ex.ToString());
-                        }
-                    });
-                }
-            }
-        }
     }
 }
