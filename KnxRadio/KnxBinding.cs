@@ -1,11 +1,63 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Amplifier.Units;
 using KnxNetCore;
+using KnxNetCore.Datapoints;
 using KnxNetCore.Telegrams;
+using KnxRadio.Messages;
 
 namespace KnxRadio
 {
+    public enum KnxAddressBindingTypes
+    {
+        Switch,
+        Temperature
+    }
+
+    public class KnxAddressBinding : IEquatable<KnxAddressBinding>
+    {
+        public GroupAddress GroupAddress { get; }
+        public KnxAddressBindingTypes KnxAddressBindingType { get; }
+
+        public KnxAddressBinding(GroupAddress groupAddress, KnxAddressBindingTypes knxAddressBindingType)
+        {
+            GroupAddress = groupAddress;
+            KnxAddressBindingType = knxAddressBindingType;
+        }
+
+        public bool Equals(KnxAddressBinding other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(GroupAddress, other.GroupAddress);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((KnxAddressBinding)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (GroupAddress != null ? GroupAddress.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(KnxAddressBinding left, KnxAddressBinding right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(KnxAddressBinding left, KnxAddressBinding right)
+        {
+            return !Equals(left, right);
+        }
+    }
+
     public class KnxBinding : IMessageSink, IMessageSource
     {
         private readonly KnxConnection _knxConnection;
@@ -13,6 +65,7 @@ namespace KnxRadio
         private IMessageBusInlet _busInlet;
 
         private NtoMDictionary<IMessageBusAddress, GroupAddress> _mapping = new NtoMDictionary<IMessageBusAddress, GroupAddress>();
+        private ImmutableDictionary<GroupAddress, KnxAddressBindingTypes> _bindingTypes = ImmutableDictionary<GroupAddress, KnxAddressBindingTypes>.Empty;
 
         public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IMessageBusAddress sendingAddress)
         {
@@ -23,9 +76,10 @@ namespace KnxRadio
             _knxConnection.KnxEventReceived += _knxConnection_KnxEventReceived;
         }
 
-        public void AddSwitch(GroupAddress groupAddress, IMessageBusAddress address)
+        public void AddSwitch(GroupAddress groupAddress, IMessageBusAddress address, KnxAddressBindingTypes knxAddressBindingType)
         {
             _mapping.Add(address, groupAddress);
+            _bindingTypes = _bindingTypes.Add(groupAddress, knxAddressBindingType);
             _messageBus.AddMessageSink(address, this, this);
         }
 
@@ -34,11 +88,31 @@ namespace KnxRadio
             ImmutableList<IMessageBusAddress> entityAddresses;
             if (_mapping.Mapping2.TryGetValue(arg2.DestinationAddress, out entityAddresses))
             {
-                bool onOff = (arg2.Apdu & 1) == 1;
-                foreach (var messageBusAddress in entityAddresses)
+
+                KnxAddressBindingTypes bindingType;
+                if (_bindingTypes.TryGetValue(arg2.DestinationAddress, out bindingType))
                 {
-                    _busInlet.Send(messageBusAddress, new SwitchMessage(onOff));
+                    var message = CreateBusMessage(bindingType, arg2);
+                    foreach (var messageBusAddress in entityAddresses)
+                    {
+                        _busInlet.Send(messageBusAddress, message);
+                    }
                 }
+            }
+        }
+
+        private IMessagePayload CreateBusMessage(KnxAddressBindingTypes bindingType, CemiFrame cemiFrame)
+        {
+            switch (bindingType)
+            {
+                case KnxAddressBindingTypes.Switch:
+                    bool onOff = (cemiFrame.Apdu & 1) == 1;
+                    return new SwitchMessage(onOff);
+                case KnxAddressBindingTypes.Temperature:
+                    return new TemperatureMessage(Dpt9001.BytesToCelsius(new ArraySegment<byte>(cemiFrame.Data.Array, cemiFrame.Data.Offset, cemiFrame.Data.Count)));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(bindingType), bindingType, null);
             }
         }
 
@@ -65,6 +139,7 @@ namespace KnxRadio
                  CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60), groupAddress, 1, (ushort)(0x80 | (switching.SwitchState ? 1 : 0)));
             _knxConnection.SendTunnelingRequest(cemiFrame).Wait();
         }
+
 
         public IMessageBusAddress Address { get; }
     }

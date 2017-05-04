@@ -31,11 +31,15 @@ namespace KnxRadio
             var button = new Button(new IntegerMessageBusAddress(123));
             var dressingLightButton = new Entity(messageBus, new IntegerMessageBusAddress(456), new[] { button });
 
+            var temperatureLivingRoom = new Entity(messageBus, new IntegerMessageBusAddress(1001), new[] { new TemperatureGauge() });
+
             var radio = new Entity(messageBus, new IntegerMessageBusAddress(999), new[] { new Radio() });
 
             var binding = new KnxBinding(connection, messageBus, new IntegerMessageBusAddress(10000));
-            binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new IntegerMessageBusAddress(123));
-            binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new IntegerMessageBusAddress(999));
+            binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new IntegerMessageBusAddress(123), KnxAddressBindingTypes.Switch);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new IntegerMessageBusAddress(999), KnxAddressBindingTypes.Switch);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 20), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 21), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
             for (;;)
             {
                 if (Console.KeyAvailable)
