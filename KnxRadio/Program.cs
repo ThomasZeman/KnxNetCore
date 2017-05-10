@@ -42,27 +42,24 @@ namespace KnxRadio
             binding.AddSwitch(GroupAddress.FromGroups(0, 3, 21), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
             for (;;)
             {
-                if (Console.KeyAvailable)
+                var ck = Console.ReadKey();
+                CemiFrame cemiFrame = null;
+                if (ck.Key == ConsoleKey.R)
                 {
-                    var ck = Console.ReadKey();
-                    CemiFrame cemiFrame = null;
-                    if (ck.Key == ConsoleKey.R)
-                    {
-                        cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
-                            CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
-                            CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60),
-                            GroupAddress.FromGroups(0, 0, 6), 1, (ushort)(CemiFrame.Commands.ValueRead) << 6);
-                    }
-                    else if (ck.Key == ConsoleKey.Escape)
-                    {
-                        break;
-                    }
-                    if (cemiFrame != null)
-                    {
-                        var task = connection.SendTunnelingRequest(cemiFrame);
-                        task.Wait();
-                        Console.WriteLine("Seq sent: " + task.Result);
-                    }
+                    cemiFrame = new CemiFrame(CemiFrame.MessageCodes.DataRequest,
+                        CemiFrame.Control1Flags.DoNotRepeat | CemiFrame.Control1Flags.PriorityLow |
+                        CemiFrame.Control1Flags.StandardFrame, CemiFrame.Control2Flags.GroupAddress, IndividualAddress.FromAddressLineDevice(1, 1, 60),
+                        GroupAddress.FromGroups(0, 0, 6), 1, (ushort)(CemiFrame.Commands.ValueRead) << 6);
+                }
+                else if (ck.Key == ConsoleKey.Escape)
+                {
+                    break;
+                }
+                if (cemiFrame != null)
+                {
+                    var task = connection.SendTunnelingRequest(cemiFrame);
+                    task.Wait();
+                    Console.WriteLine("Seq sent: " + task.Result);
                 }
             }
             Console.ReadKey();
