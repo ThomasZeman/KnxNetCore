@@ -57,7 +57,7 @@ namespace KnxRadio
             return new MessageBusInlet(this, messageSource, newSourceIdCounter);
         }
 
-        internal void AddMessageSink(IMessageBusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
+        public void AddMessageSink(IMessageBusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
         {
             ImmutableList<SinkData> list;
             int correlatingSourceId;

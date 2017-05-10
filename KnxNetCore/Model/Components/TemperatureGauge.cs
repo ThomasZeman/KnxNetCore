@@ -6,7 +6,7 @@ using KnxRadio.Messages;
 
 namespace KnxRadio.Model.Components
 {
-    class TemperatureGauge : IComponent
+    public class TemperatureGauge : IComponent
     {
         public void AddedToEntity(Entity entity)
         {

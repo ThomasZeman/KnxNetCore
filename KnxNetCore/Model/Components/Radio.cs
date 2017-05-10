@@ -8,7 +8,7 @@ using KnxNetCore.Telegrams;
 
 namespace KnxRadio.Model.Components
 {
-    class Radio : IComponent
+    public class Radio : IComponent
     {
         private static readonly string[] RadioStations =
         {

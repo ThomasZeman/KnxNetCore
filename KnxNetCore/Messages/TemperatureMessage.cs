@@ -6,7 +6,7 @@ using KnxNetCore;
 
 namespace KnxRadio.Messages
 {
-    class TemperatureMessage : IMessagePayload
+    public class TemperatureMessage : IMessagePayload
     {
         public Measure<Celsius> Temperature { get; }
 

@@ -2,7 +2,7 @@
 
 namespace KnxRadio
 {
-    class IntegerMessageBusAddress : IMessageBusAddress, IEquatable<IntegerMessageBusAddress>
+    public class IntegerMessageBusAddress : IMessageBusAddress, IEquatable<IntegerMessageBusAddress>
     {
         private int Value { get; }
 
