@@ -4,7 +4,7 @@ using KnxNetCore;
 
 namespace KnxRadio
 {
-    internal class ConsoleTrace : ITrace
+    public class ConsoleTrace : ITrace
     {
         public void Write(TraceSeverities logSeverity, string message, params object[] args)
         {
