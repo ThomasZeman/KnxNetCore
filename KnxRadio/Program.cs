@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using KnxNetCore;
 using KnxNetCore.Telegrams;
 using KnxRadio.Model.Components;
@@ -9,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace KnxRadio
@@ -29,23 +32,12 @@ namespace KnxRadio
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
-
-            app.Run(async (context) =>
+            var routerBuilder = new RouteBuilder(app, null);
+            routerBuilder.MapGet("temp/{id}", context =>
             {
-                context.Response.ContentType = "text/html";
-                await context.Response
-                    .WriteAsync("<p>Hosted by Kestrel</p>");
-
-                if (serverAddressesFeature != null)
-                {
-                    await context.Response
-                        .WriteAsync("<p>Listening on the following addresses: " +
-                                    string.Join(", ", serverAddressesFeature.Addresses) +
-                                    "</p>");
-                }
-
-                await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}<p>");
+                return context.Response.WriteAsync("id:" + context.GetRouteData().Values["id"]);
             });
+            app.UseRouter(routerBuilder.Build());
         }
         #endregion
     }
@@ -59,8 +51,9 @@ namespace KnxRadio
         {
             var builder = new WebHostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureServices(ConfigureServices)
                 .UseConfiguration(new ConfigurationBuilder().Build())
-                .UseStartup<Startup>()
+                .UseStartup<Startup>()                
                 .UseKestrel(options =>
                 {
                     options.ThreadCount = 1;
@@ -70,6 +63,11 @@ namespace KnxRadio
             var host = builder.Build();
             host.Start();
             return host;
+        }
+
+        private static void ConfigureServices(IServiceCollection obj)
+        {
+           obj.AddRouting();
         }
 
         public static void Main(string[] args)
