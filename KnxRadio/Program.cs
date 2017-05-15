@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace KnxRadio
 {
@@ -33,34 +34,63 @@ namespace KnxRadio
 
         public IConfigurationRoot Configuration { get; private set; }
 
-        #region snippet_Configure
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
+            loggerFactory
+                .AddConsole(LogLevel.Trace)
+                .AddDebug();
+            app.UseDeveloperExceptionPage();
+            app.UseFileServer();
             var test = (ITest)app.ApplicationServices.GetService(typeof(ITest));
             //var test = app.ServerFeatures.Get<ITest>();
             var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
             var routerBuilder = new RouteBuilder(app, null);
             routerBuilder.MapGet("temp/{id}", context =>
             {
-                return context.Response.WriteAsync("Temperatures: " + string.Join(Environment.NewLine, test.Messages.Select(_ => _.ToString())));
+                var id = (string)context.GetRouteData().Values["id"];
+                if (id == "1")
+                {
+                    return context.Response.WriteJson(test.Messages.Select(_ => _.Value));
+                }
+                else if (id == "2")
+                {
+                    return context.Response.WriteJson(test.Messages2.Select(_ => _.Value));
+                }
+                throw new ArgumentException();
+              //  return context.Response.WriteAsync("Temperatures: " + string.Join(Environment.NewLine, test.Messages.Select(_ => _.ToString())));
             });
             app.UseRouter(routerBuilder.Build());
         }
-        #endregion
+
+
+
+    }
+
+    public static class HttpExtensions
+    {
+        public static Task WriteJson<T>(this HttpResponse response, T obj)
+        {
+            response.ContentType = "application/json";
+            return response.WriteAsync(JsonConvert.SerializeObject(obj));
+        }
     }
 
     public interface ITest
     {
         List<Measure<Celsius>> Messages { get; }
+        List<Measure<Celsius>> Messages2 { get; }
     }
 
     class Test : ITest
     {
         public List<Measure<Celsius>> Messages { get; }
+        public List<Measure<Celsius>> Messages2 { get; }
 
-        public Test(List<Measure<Celsius>> messages)
+        public Test(List<Measure<Celsius>> messages, List<Measure<Celsius>> messages2)
         {
             Messages = messages;
+            Messages2 = messages2;
+
         }
     }
 
@@ -71,17 +101,17 @@ namespace KnxRadio
 
         public static IDisposable RunAsp(ITest test)
         {
+            Console.WriteLine(Directory.GetCurrentDirectory());
             var builder = new WebHostBuilder()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .ConfigureServices(collection => ConfigureServices(collection, test))
-                .UseConfiguration(new ConfigurationBuilder().Build())
-                .UseStartup<Startup>()
                 .UseKestrel(options =>
                 {
                     options.ThreadCount = 1;
                 })
-                .UseUrls("http://10.0.0.102:5000");
-
+                .UseUrls("http://10.0.0.102:5000")                
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureServices(collection => ConfigureServices(collection, test))
+                .UseConfiguration(new ConfigurationBuilder().Build())
+                .UseStartup<Startup>();
             var host = builder.Build();
             host.Start();
             return host;
@@ -112,15 +142,19 @@ namespace KnxRadio
             var temperatureGauge = new TemperatureGauge();
             var temperatureLivingRoom = new Entity(messageBus, new IntegerMessageBusAddress(1001), new[] { temperatureGauge });
 
+
+            var temperatureGauge2 = new TemperatureGauge();
+            var temperatureDressingRoom= new Entity(messageBus, new IntegerMessageBusAddress(1002), new[] { temperatureGauge2 });
+
             var radio = new Entity(messageBus, new IntegerMessageBusAddress(999), new[] { new Radio() });
 
             var binding = new KnxBinding(connection, messageBus, new IntegerMessageBusAddress(10000));
             binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new IntegerMessageBusAddress(123), KnxAddressBindingTypes.Switch);
             binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new IntegerMessageBusAddress(999), KnxAddressBindingTypes.Switch);
-            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 20), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
             binding.AddSwitch(GroupAddress.FromGroups(0, 3, 21), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 20), new IntegerMessageBusAddress(1002), KnxAddressBindingTypes.Temperature);
 
-            var test = new Test(temperatureGauge.Temperatures);
+            var test = new Test(temperatureGauge.Temperatures, temperatureGauge2.Temperatures);
             using (RunAsp(test))
             {
                 for (;;)
