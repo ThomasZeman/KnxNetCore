@@ -126,6 +126,7 @@ namespace KnxNetCore
                     else
                     {
                         _trace.Write(TraceSeverities.Error, "Received KnxConnectionStateResponse indicating error: {0}", knxConnectionStateResponse.Status);
+                        State = States.Disconnected;
                     }
                     break;
                 default:
