@@ -22,6 +22,7 @@ namespace KnxNetCore.Model.Components
 
         public async Task Receive(Message message)
         {
+            await Task.CompletedTask;
         }
 
         public void Switch()

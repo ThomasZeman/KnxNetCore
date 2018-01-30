@@ -23,6 +23,7 @@ namespace KnxNetCore.Model.Components
                 State = switchMessageState.Value;
                 Console.WriteLine($"Address {_entity.Address} Changed to: {State}");
             }
+            await Task.CompletedTask;
         }
     }
 }

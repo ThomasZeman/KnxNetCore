@@ -18,7 +18,7 @@ namespace KnxNetCore.UnitTests.Telegrams
         public void Address_0_3_7_is_ushort_address_775()
         {
             var sut = GroupAddress.FromGroups(0, 3, 7);
-            Assert.Equal(sut.AsUShort, 775);
+            Assert.Equal(775, sut.AsUShort);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace KnxNetCore.UnitTests.Telegrams
         public void Address_12_6_129_is_ushort_address_40577()
         {
             var sut = GroupAddress.FromGroups(19, 6, 129);
-            Assert.Equal(sut.AsUShort, 40577);
+            Assert.Equal(40577, sut.AsUShort);
         }
 
         [Fact]
