@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>KnxNetCore</AssemblyName>
     <PackageId>KnxNetCore</PackageId>
     <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>

@@ -106,9 +106,8 @@ namespace KnxRadio
             var builder = new WebHostBuilder()
                 .UseKestrel(options =>
                 {
-                    options.ThreadCount = 1;
                 })
-                .UseUrls("http://10.0.0.102:5000")                
+                .UseUrls("http://10.0.0.10:5000")                
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .ConfigureServices(collection => ConfigureServices(collection, test))
                 .UseConfiguration(new ConfigurationBuilder().Build())
@@ -128,7 +127,7 @@ namespace KnxRadio
         {
             // Establish tunneling connection with gateway at 10.0.0.135
             _trace = new ConsoleTrace();
-            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.102"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
+            var connection = new KnxConnection(new IPEndPoint(IPAddress.Parse("10.0.0.10"), 50000), new IPEndPoint(IPAddress.Parse("10.0.0.135"), 3671), _trace);
 
 
             var messageBus = new MessageBus();
