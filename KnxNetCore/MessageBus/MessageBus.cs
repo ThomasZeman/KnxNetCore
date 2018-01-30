@@ -33,12 +33,11 @@ namespace KnxNetCore.MessageBus
 
         ImmutableDictionary<BusAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<BusAddress, ImmutableList<SinkData>>.Empty;
         ImmutableDictionary<IMessageSource, int> _sourceToCorrelationId = ImmutableDictionary<IMessageSource, int>.Empty;
-        private int _sourceIdCounter = 0;
+        private int _sourceIdCounter;
 
         private void Send(Message message, int correlatingSourceId)
         {
-            ImmutableList<SinkData> sinkList;
-            if (_sinkMapping.TryGetValue(message.MessageHeader.DestinationAddress, out sinkList))
+            if (_sinkMapping.TryGetValue(message.MessageHeader.DestinationAddress, out var sinkList))
             {
                 foreach (var messageSink in sinkList)
                 {
@@ -59,13 +58,11 @@ namespace KnxNetCore.MessageBus
 
         public void AddMessageSink(BusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
         {
-            ImmutableList<SinkData> list;
-            int correlatingSourceId;
-            if (!_sourceToCorrelationId.TryGetValue(correlatingSource, out correlatingSourceId))
+            if (!_sourceToCorrelationId.TryGetValue(correlatingSource, out var correlatingSourceId))
             {
                 correlatingSourceId = -1;
             }
-            _sinkMapping = _sinkMapping.SetItem(listeningFor, _sinkMapping.TryGetValue(listeningFor, out list) ?
+            _sinkMapping = _sinkMapping.SetItem(listeningFor, _sinkMapping.TryGetValue(listeningFor, out var list) ?
                 list.Add(new SinkData(sink, correlatingSourceId)) :
                 ImmutableList<SinkData>.Empty.Add(new SinkData(sink, correlatingSourceId)));
 

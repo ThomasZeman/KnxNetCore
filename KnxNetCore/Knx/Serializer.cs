@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using KnxNetCore.Telegrams;
+using KnxNetCore.Knx.Telegrams;
 
-namespace KnxNetCore
+namespace KnxNetCore.Knx
 {
     internal class Serializer
     {

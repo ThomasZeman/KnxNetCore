@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using KnxNetCore.Datapoints;
+using KnxNetCore.Knx.Datapoints;
 using Xunit;
 
 namespace KnxNetCore.UnitTests.Datapoints

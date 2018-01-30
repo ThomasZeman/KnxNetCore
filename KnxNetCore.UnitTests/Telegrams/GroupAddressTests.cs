@@ -1,5 +1,5 @@
 ﻿using System;
-using KnxNetCore.Telegrams;
+using KnxNetCore.Knx.Telegrams;
 using Xunit;
 
 namespace KnxNetCore.UnitTests.Telegrams

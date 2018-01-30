@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     internal class KnxConnectionStateRequest : KnxTelegramPayload
     {
@@ -10,9 +10,9 @@ namespace KnxNetCore.Telegrams
             EndPoint = endPoint;
         }
 
-        public byte ChannelId { get; private set; }
+        public byte ChannelId { get; }
 
-        public IPEndPoint EndPoint { get; private set; }
+        public IPEndPoint EndPoint { get; }
 
 
         public override void Accept(IKnxTelegramVisitor knxTelegramVisitor)

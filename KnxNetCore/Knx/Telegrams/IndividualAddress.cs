@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     /// <summary>
-    /// Represents a 3-level individual address
+    ///     Represents a 3-level individual address
     /// </summary>
     public sealed class IndividualAddress
     {
@@ -18,18 +18,6 @@ namespace KnxNetCore.Telegrams
         private static readonly int AreaBitShift = 12;
         private static readonly int LineBitShift = 8;
 
-        public ushort AsUShort { get; }
-
-        public static IndividualAddress FromUShort(ushort asUShort)
-        {
-            return new IndividualAddress(asUShort);
-        }
-
-        public static IndividualAddress FromAddressLineDevice(byte area, byte line, byte device)
-        {
-            return new IndividualAddress(area, line, device);
-        }
-
         private IndividualAddress(ushort asUShort)
         {
             AsUShort = asUShort;
@@ -41,19 +29,33 @@ namespace KnxNetCore.Telegrams
             {
                 throw new ArgumentOutOfRangeException($"Area cannot be greater than {AreaMax} but was {area}");
             }
+
             if (line > LineMax)
             {
                 throw new ArgumentOutOfRangeException($"Line cannot be greater than {LineMax} but was {line}");
             }
-            AsUShort = (ushort)(device | (line << LineBitShift) | (area << AreaBitShift));
+
+            AsUShort = (ushort) (device | (line << LineBitShift) | (area << AreaBitShift));
         }
+
+        public ushort AsUShort { get; }
 
         public byte[] As3Level => new[]
         {
             (byte) (AsUShort >> AreaBitShift),
             (byte) ((AsUShort >> LineBitShift) & LineMax),
-            (byte) (AsUShort)
+            (byte) AsUShort
         };
+
+        public static IndividualAddress FromUShort(ushort asUShort)
+        {
+            return new IndividualAddress(asUShort);
+        }
+
+        public static IndividualAddress FromAddressLineDevice(byte area, byte line, byte device)
+        {
+            return new IndividualAddress(area, line, device);
+        }
 
         public override string ToString()
         {
@@ -67,8 +69,16 @@ namespace KnxNetCore.Telegrams
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
             return obj is IndividualAddress && Equals((IndividualAddress) obj);
         }
 

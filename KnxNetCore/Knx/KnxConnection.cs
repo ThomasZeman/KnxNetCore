@@ -3,9 +3,9 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using KnxNetCore.Telegrams;
+using KnxNetCore.Knx.Telegrams;
 
-namespace KnxNetCore
+namespace KnxNetCore.Knx
 {
     public sealed class KnxConnection : IDisposable
     {
@@ -119,7 +119,7 @@ namespace KnxNetCore
                     break;
                 case States.Connected:
                     if (knxConnectionStateResponse.Status ==
-                        Telegrams.KnxConnectionStateResponse.StatusCodes.NoError)
+                        Knx.Telegrams.KnxConnectionStateResponse.StatusCodes.NoError)
                     {
                         _trace.Write(TraceSeverities.Debug, "Received KnxConnectionStateResponse indicating no error");
                     }
@@ -145,7 +145,7 @@ namespace KnxNetCore
                         "Discarding KnxConnectResponse because state is not 'Connecting'");
                     break;
                 case States.Connecting:
-                    if (knxConnectResponse.StatusCode == Telegrams.KnxConnectResponse.StatusCodes.NoError)
+                    if (knxConnectResponse.StatusCode == Knx.Telegrams.KnxConnectResponse.StatusCodes.NoError)
                     {
                         _trace.Write(TraceSeverities.Info, "Connection successfully established: {0}", knxConnectResponse.ToString());
                         State = States.Connected;

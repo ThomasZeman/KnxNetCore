@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     /// <summary>
-    /// Represents a 3-level group address
+    ///     Represents a 3-level group address
     /// </summary>
     /// <remarks>2-level addresses or free address structure are not supported</remarks>
     public sealed class GroupAddress
@@ -17,16 +17,6 @@ namespace KnxNetCore.Telegrams
         private static readonly int MiddleGroupBitShift = 8;
         private static readonly int MainGroupBitShift = 11;
 
-        public static GroupAddress FromUShort(ushort groupAddressAsUShort)
-        {
-            return new GroupAddress(groupAddressAsUShort);
-        }
-
-        public static GroupAddress FromGroups(byte mainGroup, byte middleGroup, byte subGroup)
-        {
-            return new GroupAddress(mainGroup, middleGroup, subGroup);
-        }
-
         private GroupAddress(ushort groupAddressAsUShort)
         {
             AsUShort = groupAddressAsUShort;
@@ -38,11 +28,13 @@ namespace KnxNetCore.Telegrams
             {
                 throw new ArgumentOutOfRangeException($"MainGroup cannot be greater than {MainGroupMax} but was {mainGroup}");
             }
+
             if (middleGroup > MiddleGroupMax)
             {
                 throw new ArgumentOutOfRangeException($"MiddleGroup cannot be greater than {MiddleGroupMax} but was {middleGroup}");
             }
-            AsUShort = (ushort)(subGroup | (middleGroup << MiddleGroupBitShift) | (mainGroup << MainGroupBitShift));
+
+            AsUShort = (ushort) (subGroup | (middleGroup << MiddleGroupBitShift) | (mainGroup << MainGroupBitShift));
         }
 
         public ushort AsUShort { get; }
@@ -53,6 +45,16 @@ namespace KnxNetCore.Telegrams
             (byte) ((AsUShort >> MiddleGroupBitShift) & MiddleGroupMax),
             (byte) AsUShort
         };
+
+        public static GroupAddress FromUShort(ushort groupAddressAsUShort)
+        {
+            return new GroupAddress(groupAddressAsUShort);
+        }
+
+        public static GroupAddress FromGroups(byte mainGroup, byte middleGroup, byte subGroup)
+        {
+            return new GroupAddress(mainGroup, middleGroup, subGroup);
+        }
 
         public override string ToString()
         {
@@ -66,9 +68,17 @@ namespace KnxNetCore.Telegrams
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is GroupAddress && Equals((GroupAddress)obj);
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is GroupAddress && Equals((GroupAddress) obj);
         }
 
         public override int GetHashCode()

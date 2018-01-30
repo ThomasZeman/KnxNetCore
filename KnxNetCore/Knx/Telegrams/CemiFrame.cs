@@ -1,9 +1,50 @@
 ﻿using System;
 
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     public class CemiFrame // common External Message Interface
     {
+        public enum Commands : byte
+        {
+            ValueRead = 0,
+            ValueResponse = 1,
+            ValueWrite = 2,
+            Unknown3 = 3,
+            Unknown4 = 4,
+            Unknown5 = 5,
+            Unknown6 = 6,
+            Unknown7 = 7,
+            Unknown8 = 8,
+            Unknown9 = 9,
+            MemoryWrite = 10,
+            Unknown11 = 11,
+            Unknown12 = 12,
+            Unknown13 = 13,
+            Unknown14 = 14,
+            Unknown15 = 15
+        }
+
+        [Flags]
+        public enum Control1Flags : byte
+        {
+            Error = 0x1,
+            AckRequested = 0x2,
+            PrioritySystem = 0x0,
+            PriorityNormal = 0x4,
+            PriorityUrgent = 0x8,
+            PriorityLow = 0x0c,
+            Broadcast = 0x10,
+            DoNotRepeat = 0x20,
+            StandardFrame = 0x80
+        }
+
+        public enum Control2Flags : byte
+        {
+            GroupAddress = 0x80,
+            HopCount2 = 0x40,
+            HopCount1 = 0x20,
+            HopCount0 = 0x10
+        }
         //
         // transport layer control information (TPCI)
         // application layer control information (APCI)
@@ -119,52 +160,14 @@ namespace KnxNetCore.Telegrams
             BusmonitorIndication = 0x2b
         }
 
-        [Flags]
-        public enum Control1Flags : byte
-        {
-            Error = 0x1,
-            AckRequested = 0x2,
-            PrioritySystem = 0x0,
-            PriorityNormal = 0x4,
-            PriorityUrgent = 0x8,
-            PriorityLow = 0x0c,
-            Broadcast = 0x10,
-            DoNotRepeat = 0x20,
-            StandardFrame = 0x80
-        }
-
-        public enum Commands : byte
-        {
-            ValueRead = 0,
-            ValueResponse = 1,
-            ValueWrite = 2,
-            Unknown3 = 3,
-            Unknown4 = 4,
-            Unknown5 = 5,
-            Unknown6 = 6,
-            Unknown7 = 7,
-            Unknown8 = 8,
-            Unknown9 = 9,
-            MemoryWrite = 10,
-            Unknown11 = 11,
-            Unknown12 = 12,
-            Unknown13 = 13,
-            Unknown14 = 14,
-            Unknown15 = 15,
-        }
-
-        public enum Control2Flags : byte
-        {
-            GroupAddress = 0x80,
-            HopCount2 = 0x40,
-            HopCount1 = 0x20,
-            HopCount0 = 0x10
-        }
-        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu)
+        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress,
+            byte dataLength, ushort apdu)
             : this(messageCode, control1, control2, sourceAddress, destinationAddress, dataLength, apdu, new ArraySegment<byte>())
-        { }
+        {
+        }
 
-        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress, byte dataLength, ushort apdu, ArraySegment<byte> data)
+        public CemiFrame(MessageCodes messageCode, Control1Flags control1, Control2Flags control2, IndividualAddress sourceAddress, GroupAddress destinationAddress,
+            byte dataLength, ushort apdu, ArraySegment<byte> data)
         {
             MessageCode = messageCode;
             Control1 = control1;
@@ -182,7 +185,7 @@ namespace KnxNetCore.Telegrams
 
         public Control2Flags Control2 { get; }
 
-        public Commands Command => (Commands)((Apdu >> 6) & 15);
+        public Commands Command => (Commands) ((Apdu >> 6) & 15);
 
         public IndividualAddress SourceAddress { get; }
         public GroupAddress DestinationAddress { get; }

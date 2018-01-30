@@ -1,4 +1,4 @@
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     internal class KnxTelegram
     {
@@ -8,7 +8,7 @@ namespace KnxNetCore.Telegrams
             KnxTelegramPayload = knxTelegramPayload;
         }
 
-        public KnxTelegramHeader KnxTelegramHeader { get; private set; }
-        public KnxTelegramPayload KnxTelegramPayload { get; private set; }
+        public KnxTelegramHeader KnxTelegramHeader { get; }
+        public KnxTelegramPayload KnxTelegramPayload { get; }
     }
 }

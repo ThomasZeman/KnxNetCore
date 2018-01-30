@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Amplifier.Units;
-using KnxNetCore.Datapoints;
+using KnxNetCore.Knx.Datapoints;
 using Xunit;
 
 namespace KnxNetCore.UnitTests.Datapoints

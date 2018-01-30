@@ -4,10 +4,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using Amplifier.Units;
 using KnxNetCore;
-using KnxNetCore.Datapoints;
+using KnxNetCore.Knx;
+using KnxNetCore.Knx.Datapoints;
+using KnxNetCore.Knx.Telegrams;
 using KnxNetCore.MessageBus;
 using KnxNetCore.Messages;
-using KnxNetCore.Telegrams;
 
 namespace KnxRadio
 {

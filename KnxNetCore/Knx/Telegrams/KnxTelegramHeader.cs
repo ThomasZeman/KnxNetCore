@@ -1,4 +1,4 @@
-﻿namespace KnxNetCore.Telegrams
+﻿namespace KnxNetCore.Knx.Telegrams
 {
     internal class KnxTelegramHeader
     {
@@ -10,8 +10,8 @@
             TotalLength = totalLength;
         }
 
-        public byte HeaderLength { get; private set; }
-        public byte ProtocolVersion { get; private set; }
+        public byte HeaderLength { get; }
+        public byte ProtocolVersion { get; }
 
         //SEARCH_REQUEST 0x0201
         //SEARCH_RESPONSE 0x0202
@@ -28,7 +28,7 @@
         //DEVICE_CONFIGURATION_REQUEST 0x0310
         //DEVICE_CONFIGURATION_ACK 0x0311
         //ROUTING_INDICATION 0x0530
-        public ushort ServiceType { get; private set; }
-        public ushort TotalLength { get; private set; }
+        public ushort ServiceType { get; }
+        public ushort TotalLength { get; }
     }
 }

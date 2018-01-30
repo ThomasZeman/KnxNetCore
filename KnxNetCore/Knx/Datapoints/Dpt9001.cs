@@ -1,7 +1,7 @@
 using System;
 using Amplifier.Units;
 
-namespace KnxNetCore.Datapoints
+namespace KnxNetCore.Knx.Datapoints
 {
     public static class Dpt9001
     {

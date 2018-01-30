@@ -1,4 +1,4 @@
-namespace KnxNetCore.Telegrams
+namespace KnxNetCore.Knx.Telegrams
 {
     internal class KnxConnectionStateResponse : KnxTelegramPayload
     {
@@ -16,9 +16,9 @@ namespace KnxNetCore.Telegrams
             Status = status;
         }
 
-        public byte ChannelId { get; private set; }
+        public byte ChannelId { get; }
 
-        public StatusCodes Status { get; private set; }
+        public StatusCodes Status { get; }
 
         public override void Accept(IKnxTelegramVisitor knxTelegramVisitor)
         {

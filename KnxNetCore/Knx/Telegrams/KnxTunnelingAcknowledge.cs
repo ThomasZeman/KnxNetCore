@@ -1,4 +1,4 @@
-﻿namespace KnxNetCore.Telegrams
+﻿namespace KnxNetCore.Knx.Telegrams
 {
     internal class KnxTunnelingAcknowledge : KnxTelegramPayload
     {
