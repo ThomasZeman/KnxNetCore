@@ -65,10 +65,10 @@ namespace KnxRadio
         private readonly MessageBus _messageBus;
         private IMessageBusInlet _busInlet;
 
-        private NtoMDictionary<IMessageBusAddress, GroupAddress> _mapping = new NtoMDictionary<IMessageBusAddress, GroupAddress>();
+        private NtoMDictionary<BusAddress, GroupAddress> _mapping = new NtoMDictionary<BusAddress, GroupAddress>();
         private ImmutableDictionary<GroupAddress, KnxAddressBindingTypes> _bindingTypes = ImmutableDictionary<GroupAddress, KnxAddressBindingTypes>.Empty;
 
-        public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, IMessageBusAddress sendingAddress)
+        public KnxBinding(KnxConnection knxConnection, MessageBus messageBus, BusAddress sendingAddress)
         {
             _knxConnection = knxConnection;
             _messageBus = messageBus;
@@ -77,7 +77,7 @@ namespace KnxRadio
             _knxConnection.KnxEventReceived += _knxConnection_KnxEventReceived;
         }
 
-        public void AddSwitch(GroupAddress groupAddress, IMessageBusAddress address, KnxAddressBindingTypes knxAddressBindingType)
+        public void AddSwitch(GroupAddress groupAddress, BusAddress address, KnxAddressBindingTypes knxAddressBindingType)
         {
             _mapping.Add(address, groupAddress);
             _bindingTypes = _bindingTypes.Add(groupAddress, knxAddressBindingType);
@@ -86,7 +86,7 @@ namespace KnxRadio
 
         private void _knxConnection_KnxEventReceived(KnxConnection arg1, CemiFrame arg2)
         {
-            ImmutableList<IMessageBusAddress> entityAddresses;
+            ImmutableList<BusAddress> entityAddresses;
             if (_mapping.Mapping2.TryGetValue(arg2.DestinationAddress, out entityAddresses))
             {
 
@@ -142,7 +142,7 @@ namespace KnxRadio
         }
 
 
-        public IMessageBusAddress Address { get; }
+        public BusAddress Address { get; }
     }
 
     public class NtoMDictionary<T1, T2>

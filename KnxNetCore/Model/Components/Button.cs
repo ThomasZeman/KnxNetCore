@@ -7,10 +7,10 @@ namespace KnxNetCore.Model.Components
     public class Button : IComponent
     {
         private Entity _entity;
-        private readonly IMessageBusAddress _targetEntityAddress;
+        private readonly BusAddress _targetEntityAddress;
         private bool _switchState;
 
-        public Button(IMessageBusAddress targetEntityAddress)
+        public Button(BusAddress targetEntityAddress)
         {
             _targetEntityAddress = targetEntityAddress;
         }

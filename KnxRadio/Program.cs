@@ -133,26 +133,26 @@ namespace KnxRadio
             var messageBus = new MessageBus();
 
             var dressingLight = new Entity(messageBus,
-                new IntegerMessageBusAddress(123),
+                new BusAddress(123),
                 new[] { new Switch() });
 
-            var button = new Button(new IntegerMessageBusAddress(123));
-            var dressingLightButton = new Entity(messageBus, new IntegerMessageBusAddress(456), new[] { button });
+            var button = new Button(new BusAddress(123));
+            var dressingLightButton = new Entity(messageBus, new BusAddress(456), new[] { button });
 
             var temperatureGauge = new TemperatureGauge();
-            var temperatureLivingRoom = new Entity(messageBus, new IntegerMessageBusAddress(1001), new[] { temperatureGauge });
+            var temperatureLivingRoom = new Entity(messageBus, new BusAddress(1001), new[] { temperatureGauge });
 
 
             var temperatureGauge2 = new TemperatureGauge();
-            var temperatureDressingRoom= new Entity(messageBus, new IntegerMessageBusAddress(1002), new[] { temperatureGauge2 });
+            var temperatureDressingRoom= new Entity(messageBus, new BusAddress(1002), new[] { temperatureGauge2 });
 
-            var radio = new Entity(messageBus, new IntegerMessageBusAddress(999), new[] { new Radio() });
+            var radio = new Entity(messageBus, new BusAddress(999), new[] { new Radio() });
 
-            var binding = new KnxBinding(connection, messageBus, new IntegerMessageBusAddress(10000));
-            binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new IntegerMessageBusAddress(123), KnxAddressBindingTypes.Switch);
-            binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new IntegerMessageBusAddress(999), KnxAddressBindingTypes.Switch);
-            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 21), new IntegerMessageBusAddress(1001), KnxAddressBindingTypes.Temperature);
-            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 20), new IntegerMessageBusAddress(1002), KnxAddressBindingTypes.Temperature);
+            var binding = new KnxBinding(connection, messageBus, new BusAddress(10000));
+            binding.AddSwitch(GroupAddress.FromGroups(0, 0, 6), new BusAddress(123), KnxAddressBindingTypes.Switch);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 4, 0), new BusAddress(999), KnxAddressBindingTypes.Switch);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 21), new BusAddress(1001), KnxAddressBindingTypes.Temperature);
+            binding.AddSwitch(GroupAddress.FromGroups(0, 3, 20), new BusAddress(1002), KnxAddressBindingTypes.Temperature);
 
             var test = new Test(temperatureGauge.Temperatures, temperatureGauge2.Temperatures);
             using (RunAsp(test))

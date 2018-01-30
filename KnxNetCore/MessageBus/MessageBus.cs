@@ -31,7 +31,7 @@ namespace KnxNetCore.MessageBus
             }
         }
 
-        ImmutableDictionary<IMessageBusAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<IMessageBusAddress, ImmutableList<SinkData>>.Empty;
+        ImmutableDictionary<BusAddress, ImmutableList<SinkData>> _sinkMapping = ImmutableDictionary<BusAddress, ImmutableList<SinkData>>.Empty;
         ImmutableDictionary<IMessageSource, int> _sourceToCorrelationId = ImmutableDictionary<IMessageSource, int>.Empty;
         private int _sourceIdCounter = 0;
 
@@ -57,7 +57,7 @@ namespace KnxNetCore.MessageBus
             return new MessageBusInlet(this, messageSource, newSourceIdCounter);
         }
 
-        public void AddMessageSink(IMessageBusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
+        public void AddMessageSink(BusAddress listeningFor, IMessageSink sink, IMessageSource correlatingSource)
         {
             ImmutableList<SinkData> list;
             int correlatingSourceId;
@@ -84,7 +84,7 @@ namespace KnxNetCore.MessageBus
                 _correlatingSourceId = correlatingSourceId;
             }
 
-            public void Send(IMessageBusAddress destinationAddress, IMessagePayload message)
+            public void Send(BusAddress destinationAddress, IMessagePayload message)
             {
                 var sourceAddress = _messageSource.Address;
                 _messageBus.Send(new Message(new MessageHeader(sourceAddress, destinationAddress), message), _correlatingSourceId);

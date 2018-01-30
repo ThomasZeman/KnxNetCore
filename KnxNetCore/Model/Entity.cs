@@ -6,12 +6,12 @@ namespace KnxNetCore.Model
 {
     public class Entity : IMessageSink, IMessageSource
     {
-        public IMessageBusAddress Address { get; private set; }
+        public BusAddress Address { get; private set; }
 
         private readonly IComponent[] _components;
         public IMessageBusInlet Inlet { get; }
 
-        public Entity(MessageBus.MessageBus messageBus, IMessageBusAddress address, IEnumerable<IComponent> components)
+        public Entity(MessageBus.MessageBus messageBus, BusAddress address, IEnumerable<IComponent> components)
         {
             Inlet = messageBus.CreateInletFor(this);
             Address = address;
