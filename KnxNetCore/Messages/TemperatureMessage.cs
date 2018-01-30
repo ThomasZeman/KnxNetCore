@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Amplifier.Units;
-using KnxNetCore;
+﻿using Amplifier.Units;
+using KnxNetCore.MessageBus;
 
-namespace KnxRadio.Messages
+namespace KnxNetCore.Messages
 {
     public class TemperatureMessage : IMessagePayload
     {

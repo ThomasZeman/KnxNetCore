@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
+using KnxNetCore.MessageBus;
+using KnxNetCore.Messages;
 
-namespace KnxRadio
+namespace KnxNetCore.Model.Components
 {
     public class Button : IComponent
     {

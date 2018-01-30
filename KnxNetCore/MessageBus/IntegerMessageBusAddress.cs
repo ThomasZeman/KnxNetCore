@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KnxRadio
+namespace KnxNetCore.MessageBus
 {
     public class IntegerMessageBusAddress : IMessageBusAddress, IEquatable<IntegerMessageBusAddress>
     {

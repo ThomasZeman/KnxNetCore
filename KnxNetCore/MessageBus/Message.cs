@@ -1,4 +1,4 @@
-﻿namespace KnxRadio
+﻿namespace KnxNetCore.MessageBus
 {
     public class Message
     {

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
-using KnxNetCore;
-using KnxNetCore.Telegrams;
+using KnxNetCore.MessageBus;
 
-namespace KnxRadio.Model.Components
+namespace KnxNetCore.Model.Components
 {
     public class Radio : IComponent
     {

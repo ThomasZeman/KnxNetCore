@@ -1,4 +1,4 @@
-namespace KnxRadio
+namespace KnxNetCore
 {
     public interface IMessageBusAddress
     {

@@ -5,8 +5,9 @@ using System.Linq;
 using Amplifier.Units;
 using KnxNetCore;
 using KnxNetCore.Datapoints;
+using KnxNetCore.MessageBus;
+using KnxNetCore.Messages;
 using KnxNetCore.Telegrams;
-using KnxRadio.Messages;
 
 namespace KnxRadio
 {

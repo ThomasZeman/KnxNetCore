@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using KnxNetCore.MessageBus;
 
-namespace KnxRadio
+namespace KnxNetCore.Model
 {
     public interface IComponent
     {

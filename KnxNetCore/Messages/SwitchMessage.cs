@@ -1,4 +1,6 @@
-namespace KnxRadio
+using KnxNetCore.MessageBus;
+
+namespace KnxNetCore.Messages
 {
     public class SwitchMessage : IMessagePayload
     {

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive;
-using System.Text;
 using System.Threading.Tasks;
 using Amplifier.Units;
-using KnxNetCore;
-using KnxRadio.Messages;
+using KnxNetCore.MessageBus;
+using KnxNetCore.Messages;
 
-namespace KnxRadio.Model.Components
+namespace KnxNetCore.Model.Components
 {
     public class TemperatureGauge : IComponent
     {

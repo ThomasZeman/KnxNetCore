@@ -1,8 +1,6 @@
-﻿
-using System;
-using KnxNetCore;
+﻿using System;
 
-namespace KnxRadio
+namespace KnxNetCore
 {
     public class ConsoleTrace : ITrace
     {

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using KnxNetCore.MessageBus;
 
-namespace KnxRadio
+namespace KnxNetCore.Model
 {
     public class Entity : IMessageSink, IMessageSource
     {
@@ -10,7 +11,7 @@ namespace KnxRadio
         private readonly IComponent[] _components;
         public IMessageBusInlet Inlet { get; }
 
-        public Entity(MessageBus messageBus, IMessageBusAddress address, IEnumerable<IComponent> components)
+        public Entity(MessageBus.MessageBus messageBus, IMessageBusAddress address, IEnumerable<IComponent> components)
         {
             Inlet = messageBus.CreateInletFor(this);
             Address = address;
